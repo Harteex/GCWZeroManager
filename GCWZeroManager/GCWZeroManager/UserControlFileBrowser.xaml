@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlFileBrowser"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,37,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Control.BorderThickness" Value="0" />
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Path=Filename}" Header="Filename" Width="*" />
+                <DataGridTextColumn Binding="{Binding Path=Size}" Header="Size" Width="60">
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

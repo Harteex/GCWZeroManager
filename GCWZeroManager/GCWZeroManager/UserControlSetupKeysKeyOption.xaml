@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlSetupKeysKeyOption"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="394">
+    <Grid>
+        <RadioButton Content="I want to create and install keys" Height="16" HorizontalAlignment="Left" Margin="12,86,0,0" Name="radioButtonCreateInstall" VerticalAlignment="Top" IsChecked="True" Checked="radioButtonCreateInstall_Checked" />
+        <RadioButton Content="I already have keys I want to install" Height="16" HorizontalAlignment="Left" Margin="12,144,0,0" Name="radioButtonInstall" VerticalAlignment="Top" Checked="radioButtonInstall_Checked" />
+        <RadioButton Content="I have already installed my public key" Height="16" HorizontalAlignment="Left" Margin="12,235,0,0" Name="radioButtonNoInstall" VerticalAlignment="Top" Checked="radioButtonNoInstall_Checked" />
+        <TextBlock Height="34" HorizontalAlignment="Left" Margin="27,108,0,0" Name="textBlockCreateInstall" Text="If you're unsure which option to pick, chose this one." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+        <TextBlock Height="74" HorizontalAlignment="Left" Margin="12,0,0,0" Name="textBlockKeyDescription" Text="The GCW Zero uses ssh key authentication which means you need a public and a private key. The public key must be installed on your GCW Zero console, which will let you authenticate yourself with your private key." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="370" />
+        <Label Content="Private Key:" Height="28" HorizontalAlignment="Left" Margin="27,257,0,0" Name="labelPrivateKeyNoInstall" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="115,259,0,0" Name="textBoxPrivateKeyNoInstall" VerticalAlignment="Top" Width="186" TabIndex="30" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Left" Margin="307,258,0,0" Name="buttonBrowseKeyNoInstall" VerticalAlignment="Top" Width="57" TabIndex="40" Click="buttonBrowseKeyNoInstall_Click" />
+        <Label Content="Public Key:" Height="28" HorizontalAlignment="Left" Margin="27,168,0,0" Name="labelPublicKey" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="115,170,0,0" Name="textBoxPublicKey" VerticalAlignment="Top" Width="186" TabIndex="30" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Left" Margin="307,169,0,0" Name="buttonBrowsePublicKey" VerticalAlignment="Top" Width="57" TabIndex="40" Click="buttonBrowsePublicKey_Click" />
+        <Label Content="Private Key:" Height="28" HorizontalAlignment="Left" Margin="27,192,0,0" Name="labelPrivateKey" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="115,194,0,0" Name="textBoxPrivateKey" VerticalAlignment="Top" Width="186" TabIndex="30" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Left" Margin="307,193,0,0" Name="buttonBrowsePrivateKey" VerticalAlignment="Top" Width="57" TabIndex="40" Click="buttonBrowsePrivateKey_Click" />
+    </Grid>
+</UserControl>

@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlManageSoftware"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <DataGrid AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,5,0,32" Name="gridSoftwareList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderThickness" Value="0"/>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                <DataGridTextColumn Header="Filename" Width="100" Binding="{Binding Path=Filename}"/>
+                <DataGridTextColumn Header="Size" Width="60" Binding="{Binding Path=Size}">
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Uninstall Selected" Height="23" HorizontalAlignment="Right" Margin="0,0,0,3" Name="buttonUninstall" VerticalAlignment="Bottom" Width="105" Click="buttonUninstall_Click" />
+        <Button Content="Refresh" Height="23" HorizontalAlignment="Left" Name="buttonRefresh" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,3" Click="buttonRefresh_Click" />
+    </Grid>
+</UserControl>

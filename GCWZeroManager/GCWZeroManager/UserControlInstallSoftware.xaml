@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlInstallSoftware"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,5,0,32" Name="gridPendingInstall" VerticalAlignment="Stretch" DragEnter="gridPendingInstall_DragEnter" DragOver="gridPendingInstall_DragOver" Drop="gridPendingInstall_Drop" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True">
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderThickness" Value="0"/>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Title" Width="*" Binding="{Binding Path=Title}"/>
+                <DataGridTextColumn Header="Filename" Width="100" Binding="{Binding Path=Filename}"/>
+                <DataGridTextColumn Header="Size" Width="60" Binding="{Binding Path=Size}">
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Install All" Height="23" HorizontalAlignment="Right" Margin="81,0,0,3" Name="buttonInstall" VerticalAlignment="Bottom" Width="75" Click="buttonInstall_Click" />
+        <Button Content="Add OPK" Height="23" HorizontalAlignment="Left" Name="buttonAddOpk" VerticalAlignment="Bottom" Width="75" Margin="0,0,0,3" Click="buttonAddOpk_Click" />
+        <Button Content="Remove Selected" Height="23" HorizontalAlignment="Left" Name="buttonRemove" VerticalAlignment="Bottom" Width="100" Margin="81,0,0,3" Click="buttonRemove_Click" />
+    </Grid>
+</UserControl>

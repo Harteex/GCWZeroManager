@@ -1,0 +1,15 @@
+﻿<Window x:Class="GCWZeroManager2.SetupKeysWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Setup Keys" Height="408" Width="531" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False">
+    <Grid>
+        <Button Content="Cancel" Height="23" HorizontalAlignment="Right" Margin="0,0,12,12" Name="buttonCancel" VerticalAlignment="Bottom" Width="75" IsCancel="True" />
+        <Button Content="Next &gt;" Height="23" HorizontalAlignment="Right" Margin="0,0,102,12" Name="buttonNext" VerticalAlignment="Bottom" Width="75" Click="buttonNext_Click" />
+        <Button Content="&lt; Back" Height="23" HorizontalAlignment="Right" Margin="0,0,183,12" Name="buttonPrevious" VerticalAlignment="Bottom" Width="75" Click="buttonPrevious_Click" />
+        <ContentControl Height="Auto" HorizontalAlignment="Stretch" Margin="120,12,12,42" Name="contentControl1" VerticalAlignment="Stretch" Width="Auto" />
+        <Rectangle Height="Auto" HorizontalAlignment="Left" Name="rectangle1" Stroke="{x:Null}" VerticalAlignment="Stretch" Width="114" Fill="#FF3399FF" />
+        <Label Content="1. Key Option" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="labelPage1" VerticalAlignment="Top" Foreground="White" FontWeight="Normal" />
+        <Label Content="2. Connect" Height="28" HorizontalAlignment="Left" Margin="12,46,0,0" Name="labelPage2" VerticalAlignment="Top" Foreground="White" />
+        <Label Content="3. Finished" Height="28" HorizontalAlignment="Left" Margin="12,80,0,0" Name="labelPage3" VerticalAlignment="Top" Foreground="White" />
+    </Grid>
+</Window>

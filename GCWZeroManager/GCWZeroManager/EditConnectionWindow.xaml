@@ -1,0 +1,20 @@
+﻿<Window x:Class="GCWZeroManager2.EditConnectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add / Edit Connections" Height="370" Width="412" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False">
+    <Grid>
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="137,16,0,0" Name="textBoxHost" VerticalAlignment="Top" Width="218" TabIndex="10" />
+        <Button Content="OK" Height="23" HorizontalAlignment="Left" Margin="230,303,0,0" Name="buttonOk" VerticalAlignment="Top" Width="75" Click="buttonOk_Click" IsDefault="True" TabIndex="70" />
+        <Button Content="Cancel" Height="23" HorizontalAlignment="Left" Margin="311,303,0,0" Name="buttonCancel" VerticalAlignment="Top" Width="75" Click="buttonCancel_Click" IsCancel="True" TabIndex="80" />
+        <Label Content="Host" Height="28" HorizontalAlignment="Left" Margin="12,14,0,0" Name="labelHost" VerticalAlignment="Top" />
+        <Label Content="Authentication" Height="28" HorizontalAlignment="Left" Margin="12,48,0,0" Name="labelAuth" VerticalAlignment="Top" />
+        <TextBlock Height="74" HorizontalAlignment="Left" Margin="49,76,0,0" Name="textBlockKeyDescription" Text="The GCW Zero uses ssh key authentication which means you need a public and a private key. The public key must be installed on your GCW Zero console, which will let you authenticate yourself with your private key." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="337" />
+        <Label Content="Private Key:" Height="28" HorizontalAlignment="Left" Margin="49,197,0,0" Name="labelKeys" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Left" Margin="137,199,0,0" Name="textBoxKeys" VerticalAlignment="Top" Width="186" TabIndex="30" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Left" Margin="329,198,0,0" Name="buttonBrowseKey" VerticalAlignment="Top" Width="57" TabIndex="40" Click="buttonBrowseKey_Click" />
+        <Button Content="Test" Height="23" HorizontalAlignment="Left" Margin="12,303,0,0" Name="buttonTest" VerticalAlignment="Top" Width="75" Click="buttonTest_Click" TabIndex="65" />
+        <TextBlock Height="38" HorizontalAlignment="Left" Margin="49,156,0,0" Name="textBlockSetKey" Text="If you already have your public key installed, please enter the path to your private key." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="337" />
+        <TextBlock Height="38" HorizontalAlignment="Left" Margin="49,247,0,0" Name="textBlockInstall" Text="If you do not have your public key installed already, please click the Setup Keys button below." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" Width="337" />
+        <Button Content="Setup Keys" Height="23" HorizontalAlignment="Left" Margin="93,303,0,0" Name="buttonSetupKeys" VerticalAlignment="Top" Width="75" Click="buttonSetupKeys_Click" />
+    </Grid>
+</Window>

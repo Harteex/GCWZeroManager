@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlSystemUpdate"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <TextBlock Height="99" HorizontalAlignment="Left" Margin="12,106,0,0" Name="textBlock1" Text="In the future, the application will be able to download the latest update itself, but for now, to update your system, add the update OPK in the Install Software page. Then run the update program on your GCW Zero console and follow the on screen instructions." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+        <Label Content="Installed Version:" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="labelInstalledVer" VerticalAlignment="Top" />
+        <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="12,30,0,0" Name="labelInstalledVerContent" VerticalAlignment="Top" />
+        <Button Content="Get Installed Version" Height="23" HorizontalAlignment="Left" Margin="12,62,0,0" Name="buttonReadInstalledVer" VerticalAlignment="Top" Width="130" Click="buttonReadInstalledVer_Click" />
+        <Button Content="Download Latest Firmware" Height="23" HorizontalAlignment="Left" Margin="12,201,0,0" Name="buttonDownloadUpdate" VerticalAlignment="Top" Width="158" Click="buttonDownloadUpdate_Click" />
+    </Grid>
+</UserControl>

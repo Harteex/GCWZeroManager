@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="GCWZeroManager2.UserControlAbout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <TextBlock Height="37" HorizontalAlignment="Left" Margin="12,58,0,0" Name="textBlock1" Text="The GCW Zero Manager is developed by Andreas Bjerkeholt (Harteex)." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+        <Label Content="GCW Zero Manager version" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="labelVersion" VerticalAlignment="Top" />
+        <TextBlock Height="72" HorizontalAlignment="Left" Margin="12,115,0,0" Name="textBlock2" Text="Please do note that the application is still in early development, so many things are not finished yet. However, if you find bugs, feel free to report them on the Dingoonity GCW Zero forums." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+        <Button Content="View Licenses" Height="23" HorizontalAlignment="Left" Margin="12,197,0,0" Name="buttonLicense" VerticalAlignment="Top" Width="95" Click="buttonLicense_Click" />
+    </Grid>
+</UserControl>

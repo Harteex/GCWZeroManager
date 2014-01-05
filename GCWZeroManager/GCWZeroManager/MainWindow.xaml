@@ -1,0 +1,46 @@
+﻿<Window x:Class="GCWZeroManager2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GCW Zero Manager" Height="350" Width="525" Closing="Window_Closing" MinWidth="460" MinHeight="250">
+    <Grid Height="Auto">
+        <ListBox Height="Auto" HorizontalAlignment="Left" Margin="10,10,0,10" Name="listBoxMenu" VerticalAlignment="Stretch" Width="100" HorizontalContentAlignment="Center" SelectionChanged="listBox1_SelectionChanged">
+            <ListBox.Resources>
+                <!--<SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}">Red</SolidColorBrush>-->
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+            </ListBox.Resources>
+            <ListBoxItem>
+                <StackPanel Orientation="Vertical">
+                    <Image Height="48" Source="software_48.png" Margin="0,2,0,0"></Image>
+                    <TextBlock Text="Install Software" Margin="0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </ListBoxItem>
+            <ListBoxItem>
+                <StackPanel Orientation="Vertical">
+                    <Image Height="48" Source="delete_48.png" Margin="0,2,0,0"></Image>
+                    <TextBlock Text="Manage Software" Margin="0" VerticalAlignment="Center" />
+
+                </StackPanel>
+            </ListBoxItem>
+            <ListBoxItem>
+                <StackPanel Orientation="Vertical">
+                    <Image Height="48" Source="world_48.png" Margin="0,2,0,0"></Image>
+                    <TextBlock Text="System Upgrade" Margin="0" VerticalAlignment="Center" />
+
+                </StackPanel>
+            </ListBoxItem>
+            <ListBoxItem>
+                <StackPanel Orientation="Vertical">
+                    <Image Height="48" Source="info_48.png" Margin="0,2,0,0"></Image>
+                    <TextBlock Text="  About" Margin="0" VerticalAlignment="Center" />
+
+                </StackPanel>
+            </ListBoxItem>
+        </ListBox>
+        <Label Content="Connection:" Height="28" HorizontalAlignment="Left" Margin="114,10,0,0" Name="labelConnection" VerticalAlignment="Top" />
+        <Button Content="Edit" Height="23" HorizontalAlignment="Right" Margin="0,12,114,0" Name="buttonEdit" VerticalAlignment="Top" Width="45" Click="buttonEdit_Click" />
+        <Button Content="Add" Height="23" HorizontalAlignment="Right" Margin="0,12,63,0" Name="buttonAdd" VerticalAlignment="Top" Width="45" Click="buttonAdd_Click" />
+        <Button Content="Delete" Height="23" HorizontalAlignment="Right" Margin="0,12,12,0" Name="buttonDelete" VerticalAlignment="Top" Width="45" Click="buttonDelete_Click" />
+        <ContentControl Height="Auto" HorizontalAlignment="Stretch" Margin="122,44,10,10" Name="contentControl1" VerticalAlignment="Stretch" Width="Auto" />
+        <ComboBox Height="23" HorizontalAlignment="Stretch" Margin="193,12,165,0" Name="comboBoxConnections" VerticalAlignment="Top" SelectionChanged="comboBoxConnections_SelectionChanged" />
+    </Grid>
+</Window>
