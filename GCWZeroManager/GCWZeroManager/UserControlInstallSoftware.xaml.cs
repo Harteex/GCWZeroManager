@@ -15,7 +15,7 @@ using System.IO;
 using Microsoft.Win32;
 using Renci.SshNet;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for UserControlInstallSoftware.xaml

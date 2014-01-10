@@ -1,4 +1,4 @@
-﻿<Window x:Class="GCWZeroManager2.SetupKeysWindow"
+﻿<Window x:Class="GCWZeroManager.SetupKeysWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Setup Keys" Height="408" Width="531" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False">

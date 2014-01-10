@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     public class OPKFile
     {

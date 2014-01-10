@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     public enum AuthenticationMethod { PrivateKey, Password };
 

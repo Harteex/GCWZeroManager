@@ -1,4 +1,4 @@
-﻿<Window x:Class="GCWZeroManager2.WindowLicenses"
+﻿<Window x:Class="GCWZeroManager.WindowLicenses"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Licenses" Height="400" Width="450">

@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using Renci.SshNet;
 using System.Diagnostics;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for UserControlSystemUpdate.xaml

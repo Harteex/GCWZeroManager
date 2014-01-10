@@ -9,7 +9,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     public class ConnectionManager
     {

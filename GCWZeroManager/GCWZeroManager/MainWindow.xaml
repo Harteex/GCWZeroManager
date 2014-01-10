@@ -1,4 +1,4 @@
-﻿<Window x:Class="GCWZeroManager2.MainWindow"
+﻿<Window x:Class="GCWZeroManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="GCW Zero Manager" Height="350" Width="525" Closing="Window_Closing" MinWidth="460" MinHeight="250">
@@ -24,7 +24,7 @@
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
                     <Image Height="48" Source="world_48.png" Margin="0,2,0,0"></Image>
-                    <TextBlock Text="System Upgrade" Margin="0" VerticalAlignment="Center" />
+                    <TextBlock Text="System Info" Margin="0" VerticalAlignment="Center" />
 
                 </StackPanel>
             </ListBoxItem>

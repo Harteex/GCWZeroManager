@@ -15,7 +15,7 @@ using System.IO;
 using Microsoft.Win32;
 using System.Diagnostics;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     public enum KeyOption { GenerateKeys, InstallKeys, NoInstall };
     /// <summary>

@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using WinSCP;
 using System.ComponentModel;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

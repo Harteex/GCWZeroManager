@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using System.Reflection;
 using System.Diagnostics;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for UserControlAbout.xaml

@@ -104,8 +104,8 @@
     <Compile Include="UserControlSetupKeysKeyOption.xaml.cs">
       <DependentUpon>UserControlSetupKeysKeyOption.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UserControlSystemUpdate.xaml.cs">
-      <DependentUpon>UserControlSystemUpdate.xaml</DependentUpon>
+    <Compile Include="UserControlSystemInfo.xaml.cs">
+      <DependentUpon>UserControlSystemInfo.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowLicenses.xaml.cs">
       <DependentUpon>WindowLicenses.xaml</DependentUpon>
@@ -166,7 +166,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UserControlSystemUpdate.xaml">
+    <Page Include="UserControlSystemInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -18,7 +18,7 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Net.Sockets;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for TransferProgressWindow.xaml

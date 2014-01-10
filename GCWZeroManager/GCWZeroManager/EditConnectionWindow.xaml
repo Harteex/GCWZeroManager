@@ -1,4 +1,4 @@
-﻿<Window x:Class="GCWZeroManager2.EditConnectionWindow"
+﻿<Window x:Class="GCWZeroManager.EditConnectionWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add / Edit Connections" Height="370" Width="412" ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False">

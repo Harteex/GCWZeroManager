@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
 
-namespace GCWZeroManager2
+namespace GCWZeroManager
 {
     /// <summary>
     /// Interaction logic for EditConnectionWindow.xaml
