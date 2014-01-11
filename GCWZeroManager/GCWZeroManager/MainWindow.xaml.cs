@@ -21,7 +21,7 @@ namespace GCWZeroManager
     /// </summary>
     public partial class MainWindow : Window
     {
-        private UserControl[] userControls = new UserControl[] { new UserControlInstallSoftware(), new UserControlManageSoftware(), new UserControlSystemUpdate(), new UserControlAbout() };
+        private UserControl[] userControls = new UserControl[] { new UserControlInstallSoftware(), new UserControlManageSoftware(), new UserControlFileBrowser(), new UserControlSystemUpdate(), new UserControlAbout() };
 
         public MainWindow()
         {

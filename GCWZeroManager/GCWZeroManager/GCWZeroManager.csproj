@@ -207,6 +207,7 @@
     <Resource Include="todo.txt" />
     <Resource Include="delete_48.png" />
     <Resource Include="info_48.png" />
+    <Resource Include="folder_48.png" />
     <Content Include="Renci.SshNet.dll" />
     <Content Include="WinSCP.dll" />
     <Content Include="WinSCP.exe">

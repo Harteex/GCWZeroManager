@@ -23,5 +23,9 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <ToolBarTray Height="26" HorizontalAlignment="Left" Margin="12,12,0,0" Name="toolBarTray1" VerticalAlignment="Top" Width="219">
+            <ToolBar Height="26" HorizontalAlignment="Left" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top" Width="201" />
+        </ToolBarTray>
+
     </Grid>
 </UserControl>
