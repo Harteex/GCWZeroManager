@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,37,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop">
+        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop">
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="Control.BorderThickness" Value="0" />
@@ -23,9 +23,27 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <ToolBarTray Height="26" HorizontalAlignment="Left" Margin="12,12,0,0" Name="toolBarTray1" VerticalAlignment="Top" Width="219">
-            <ToolBar Height="26" HorizontalAlignment="Left" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top" Width="201" />
-        </ToolBarTray>
-
+        <ToolBar ToolBarTray.IsLocked="True" Height="32" HorizontalAlignment="Stretch" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top">
+            <Button>
+                <Image Width="22" Height="22" Source="toolbar-go-home.png" />
+            </Button>
+            <Button>
+                <Image Width="22" Height="22" Source="toolbar-go-parent-directory.png" />
+            </Button>
+            <Separator Margin="5,0,5,0"/>
+            <Button>
+                <Image Width="22" Height="22" Source="toolbar-delete.png" />
+            </Button>
+        </ToolBar>
+        <Label Content="Path:" Height="28" HorizontalAlignment="Left" Margin="0,33,0,0" Name="labelPath" VerticalAlignment="Top" />
+        <TextBox Height="23" HorizontalAlignment="Stretch" Margin="42,35,0,0" Name="textBoxPath" VerticalAlignment="Top" Width="Auto" Text="/" IsReadOnly="True" />
+        <!--<StackPanel Height="28" HorizontalAlignment="Left" Margin="152,20,0,0" Name="stackPanel1" VerticalAlignment="Top" Width="200" Orientation="Horizontal">
+            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                <Image Width="22" Source="toolbar-go-parent-directory.png" />
+            </Button>
+            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Focusable="False">
+                <Image Width="22" Source="toolbar-delete.png" />
+            </Button>
+        </StackPanel>-->
     </Grid>
 </UserControl>
