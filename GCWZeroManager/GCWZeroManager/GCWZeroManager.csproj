@@ -80,6 +80,7 @@
     <Compile Include="SetupKeysWindow.xaml.cs">
       <DependentUpon>SetupKeysWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SizeElement.cs" />
     <Compile Include="TransferProgressWindow.xaml.cs">
       <DependentUpon>TransferProgressWindow.xaml</DependentUpon>
     </Compile>

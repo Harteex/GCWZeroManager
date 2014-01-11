@@ -10,7 +10,7 @@ namespace GCWZeroManager
         public string Path { get; set; }
         public string Filename { get; set; }
         public string Title { get; set; }
-        public string Size { get; set; }
+        public SizeElement Size { get; set; }
         public long Bytes { get; set; }
     }
 }

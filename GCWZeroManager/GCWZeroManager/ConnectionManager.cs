@@ -267,7 +267,7 @@ namespace GCWZeroManager
                     OPKFile opk = new OPKFile();
                     opk.Filename = file.Name;
                     opk.Title = file.Name; // FIXME load this somehow in a thread later somewhere
-                    opk.Size = HelperTools.GetFormattedSize(file.Length);
+                    opk.Size = new SizeElement(file.Length);
                     opk.Bytes = file.Length;
                     list.Add(opk);
                 }
