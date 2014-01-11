@@ -72,6 +72,7 @@
     <Compile Include="EditConnectionWindow.xaml.cs">
       <DependentUpon>EditConnectionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileNode.cs" />
     <Compile Include="HelperTools.cs" />
     <Compile Include="OPKFile.cs" />
     <Compile Include="PasswordInputDialog.xaml.cs">
@@ -213,6 +214,8 @@
     <Resource Include="toolbar-go-home.png" />
     <Resource Include="toolbar-delete.png" />
     <Resource Include="toolbar-go-parent-directory.png" />
+    <Resource Include="toolbar-new-folder.png" />
+    <Resource Include="toolbar-refresh.png" />
     <Content Include="WinSCP.dll" />
     <Content Include="WinSCP.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

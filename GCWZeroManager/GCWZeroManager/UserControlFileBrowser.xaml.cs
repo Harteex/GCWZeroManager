@@ -19,9 +19,36 @@ namespace GCWZeroManager
     /// </summary>
     public partial class UserControlFileBrowser : UserControl
     {
+        private List<FileNode> files = new List<FileNode>();
+
         public UserControlFileBrowser()
         {
             InitializeComponent();
+            gridFileList.ItemsSource = GetFileList();
+        }
+
+        private List<FileNode> GetFileList()
+        {
+            return files;
+        }
+
+        private void UpdateList()
+        {
+            files.Clear();
+            List<FileNode> tempList = ConnectionManager.Instance.ListFiles(textBoxPath.Text);
+            if (tempList == null)
+            {
+                MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                foreach (FileNode file in tempList)
+                {
+                    files.Add(file);
+                }
+            }
+            gridFileList.Items.Refresh();
         }
 
         private void gridFileList_DragEnter(object sender, DragEventArgs e)
@@ -37,6 +64,38 @@ namespace GCWZeroManager
         private void gridFileList_Drop(object sender, DragEventArgs e)
         {
 
+        }
+
+        private void buttonHome_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateList();
+        }
+
+        private void buttonParentDir_Click(object sender, RoutedEventArgs e)
+        {
+            if (textBoxPath.Text == "/")
+                return;
+
+            int slashIndex = textBoxPath.Text.Substring(0, textBoxPath.Text.Length - 1).LastIndexOf('/');
+            textBoxPath.Text = textBoxPath.Text.Substring(0, slashIndex + 1);
+            UpdateList();
+        }
+
+        private void gridFileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = (DataGridRow)sender;
+            if (row == null)
+                return;
+
+            FileNode file = (FileNode)row.Item;
+            if (file == null)
+                return;
+
+            if (file.FileType == FileType.Directory)
+            {
+                textBoxPath.Text += file.Filename + "/";
+                UpdateList();
+            }
         }
     }
 }

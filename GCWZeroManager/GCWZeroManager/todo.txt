@@ -1,3 +1,7 @@
+ÄNDRA HUR CONNECTIONS FUNKAR? ha alltid anslutningen igång??
+
+* Ny system info ikon...
+
 FileBrowser:
 Ha knappfält... Homeknapp, refresh, skapa ny mapp... mer? sen kan det stå text typ Dragndrop to transfer files
 

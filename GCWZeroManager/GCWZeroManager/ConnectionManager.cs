@@ -268,7 +268,6 @@ namespace GCWZeroManager
                     opk.Filename = file.Name;
                     opk.Title = file.Name; // FIXME load this somehow in a thread later somewhere
                     opk.Size = new SizeElement(file.Length);
-                    opk.Bytes = file.Length;
                     list.Add(opk);
                 }
             }
@@ -385,6 +384,38 @@ namespace GCWZeroManager
 
             result = "OK";
             return true;
+        }
+
+        public List<FileNode> ListFiles(string directory)
+        {
+            SftpClient sftp = ConnectWithActiveConnectionSFTP();
+            if (sftp == null || !sftp.IsConnected)
+                return null;
+
+            List<FileNode> list = new List<FileNode>();
+
+            foreach (SftpFile file in sftp.ListDirectory(directory))
+            {
+                if (file.Name == "." || file.Name == "..")
+                    continue;
+
+                FileNode opk = new FileNode();
+                opk.Filename = file.Name;
+                opk.Size = new SizeElement(file.Length);
+
+                if (file.IsRegularFile)
+                    opk.FileType = FileType.RegularFile;
+                else if (file.IsDirectory)
+                    opk.FileType = FileType.Directory;
+                else
+                    opk.FileType = FileType.Other;
+
+                list.Add(opk);
+            }
+
+            sftp.Disconnect();
+
+            return list;
         }
     }
 }

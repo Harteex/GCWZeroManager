@@ -42,8 +42,7 @@ namespace GCWZeroManager
                 Path = path,
                 Filename = System.IO.Path.GetFileName(path),
                 Title = System.IO.Path.GetFileName(path),
-                Size = new SizeElement(size),
-                Bytes = size
+                Size = new SizeElement(size)
             };
             opkFiles.Add(opk);
         }

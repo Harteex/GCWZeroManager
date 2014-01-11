@@ -42,7 +42,7 @@ namespace GCWZeroManager
             totalBytes = 0;
             foreach (OPKFile f in files)
             {
-                totalBytes += f.Bytes;
+                totalBytes += f.Size.Bytes;
             }
 
             labelTotalBytesData.Content = HelperTools.GetFormattedSize(totalBytes);
@@ -135,7 +135,7 @@ namespace GCWZeroManager
                     if (result == MessageBoxResult.No)
                     {
                         progress.FilesRemaining--;
-                        bytesLeft -= opk.Bytes;
+                        bytesLeft -= opk.Size.Bytes;
                         continue;
                     }
                 }
@@ -175,7 +175,7 @@ namespace GCWZeroManager
                     scp.Upload(new FileInfo(opk.Path), ConnectionManager.Instance.OPKDir);
 
                     progress.FilesRemaining--;
-                    bytesLeft -= opk.Bytes;
+                    bytesLeft -= opk.Size.Bytes;
                     totalPercent = 100 - (int)((bytesLeft * 100) / totalBytes);
                     workerThread.ReportProgress(totalPercent, progress);
                 }
