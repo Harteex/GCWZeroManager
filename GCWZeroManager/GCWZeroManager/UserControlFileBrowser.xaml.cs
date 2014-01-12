@@ -27,7 +27,12 @@ namespace GCWZeroManager
         {
             InitializeComponent();
             gridFileList.ItemsSource = new ListCollectionView(files);
-            gridFileList.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Descending;
+
+            gridFileList.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Ascending;
+            ICollectionView view = CollectionViewSource.GetDefaultView(gridFileList.ItemsSource);
+            view.SortDescriptions.Clear();
+            view.SortDescriptions.Add(new SortDescription("Filename", ListSortDirection.Ascending));
+            view.Refresh();
         }
 
         private void UpdateList()
@@ -37,6 +42,7 @@ namespace GCWZeroManager
                 if (!ConnectionManager.Instance.Connect())
                 {
                     MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
             }
 

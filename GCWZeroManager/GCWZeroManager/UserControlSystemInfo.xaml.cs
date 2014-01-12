@@ -28,13 +28,16 @@ namespace GCWZeroManager
 
         private void buttonReadInstalledVer_Click(object sender, RoutedEventArgs e)
         {
-            SshClient ssh = ConnectionManager.Instance.ConnectWithActiveConnectionSSH();
-            if (ssh == null || !ssh.IsConnected)
+            if (!ConnectionManager.Instance.Connected)
             {
-                MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
 
+            SshClient ssh = ConnectionManager.Instance.GetActiveSshConnection();
             SshCommand cmd = ssh.CreateCommand("uname -v");
             cmd.Execute();
             labelInstalledVerContent.Content = cmd.Result;
@@ -47,15 +50,16 @@ namespace GCWZeroManager
 
         private void buttonSystemInfo_Click(object sender, RoutedEventArgs e)
         {
-            textBoxSystemInfo.Text = "Fetching system info...";
-            textBoxSystemInfo.UpdateLayout();
-
-            SshClient ssh = ConnectionManager.Instance.ConnectWithActiveConnectionSSH();
-            if (ssh == null || !ssh.IsConnected)
+            if (!ConnectionManager.Instance.Connected)
             {
-                textBoxSystemInfo.Text = "Unable to connect!";
-                return;
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
+
+            SshClient ssh = ConnectionManager.Instance.GetActiveSshConnection();
 
             textBoxSystemInfo.Text = "";
 

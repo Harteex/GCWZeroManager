@@ -165,7 +165,33 @@ namespace GCWZeroManager
             return list;
         }
 
+        public SftpClient GetActiveSftpConnection()
+        {
+            if (activeSftp != null && !activeSftp.IsConnected)
+            {
+                if (activeSsh != null && activeSsh.IsConnected)
+                    activeSsh.Disconnect();
 
+                activeSftp = null;
+                activeSsh = null;
+            }
+
+            return activeSftp;
+        }
+
+        public SshClient GetActiveSshConnection()
+        {
+            if (activeSsh != null && !activeSsh.IsConnected)
+            {
+                if (activeSftp != null && activeSftp.IsConnected)
+                    activeSftp.Disconnect();
+
+                activeSftp = null;
+                activeSsh = null;
+            }
+
+            return activeSsh;
+        }
 
 
 
