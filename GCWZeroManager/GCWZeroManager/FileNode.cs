@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GCWZeroManager
 {
-    public enum FileType { RegularFile, Directory, Other };
+    public enum FileType { RegularFile, Directory, SymLink, Other };
     public class FileNode
     {
         public string Filename { get; set; }

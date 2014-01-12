@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
 
 namespace GCWZeroManager
 {
@@ -20,25 +21,30 @@ namespace GCWZeroManager
     public partial class UserControlFileBrowser : UserControl
     {
         private List<FileNode> files = new List<FileNode>();
+        string lastOkPath = "/";
 
         public UserControlFileBrowser()
         {
             InitializeComponent();
-            gridFileList.ItemsSource = GetFileList();
-        }
-
-        private List<FileNode> GetFileList()
-        {
-            return files;
+            gridFileList.ItemsSource = new ListCollectionView(files);
+            gridFileList.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Descending;
         }
 
         private void UpdateList()
         {
+            if (!ConnectionManager.Instance.Connected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
             files.Clear();
-            List<FileNode> tempList = ConnectionManager.Instance.ListFiles(textBoxPath.Text);
+            List<FileNode> tempList = ConnectionManager.Instance.ListFiles(textBoxPath.Text); // FIXME Handle SftpPathNotFoundException!!!
             if (tempList == null)
             {
-                MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File listing failed!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -48,7 +54,10 @@ namespace GCWZeroManager
                     files.Add(file);
                 }
             }
-            gridFileList.Items.Refresh();
+
+            ((ListCollectionView)this.gridFileList.ItemsSource).Refresh();
+
+            lastOkPath = textBoxPath.Text;
         }
 
         private void gridFileList_DragEnter(object sender, DragEventArgs e)
@@ -68,6 +77,7 @@ namespace GCWZeroManager
 
         private void buttonHome_Click(object sender, RoutedEventArgs e)
         {
+            textBoxPath.Text = "/usr/local/home/";
             UpdateList();
         }
 
@@ -91,7 +101,7 @@ namespace GCWZeroManager
             if (file == null)
                 return;
 
-            if (file.FileType == FileType.Directory)
+            if (file.FileType == FileType.Directory || file.FileType == FileType.SymLink) // FIXME not all symlinks can be followed I guess.......?
             {
                 textBoxPath.Text += file.Filename + "/";
                 UpdateList();

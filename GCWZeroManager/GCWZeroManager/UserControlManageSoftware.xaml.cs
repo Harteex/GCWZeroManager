@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
 
 namespace GCWZeroManager
 {
@@ -24,21 +25,25 @@ namespace GCWZeroManager
         public UserControlManageSoftware()
         {
             InitializeComponent();
-            gridSoftwareList.ItemsSource = GetSoftwareList();
-        }
-
-        private List<OPKFile> GetSoftwareList()
-        {
-            return files;
+            gridSoftwareList.ItemsSource = new ListCollectionView(files);
+            gridSoftwareList.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Descending;
         }
 
         private void UpdateList()
         {
+            if (!ConnectionManager.Instance.Connected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
             files.Clear();
-            List<OPKFile> tempList = ConnectionManager.Instance.GetOPKList();
+            List<OPKFile> tempList = ConnectionManager.Instance.ListOPKs();
             if (tempList == null)
             {
-                MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File listing failed!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -48,7 +53,8 @@ namespace GCWZeroManager
                     files.Add(file);
                 }
             }
-            gridSoftwareList.Items.Refresh();
+
+            ((ListCollectionView)this.gridSoftwareList.ItemsSource).Refresh();
         }
 
         private void buttonRefresh_Click(object sender, RoutedEventArgs e)

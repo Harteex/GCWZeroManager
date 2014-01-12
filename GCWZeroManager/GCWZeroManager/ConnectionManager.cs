@@ -27,13 +27,16 @@ namespace GCWZeroManager
             }
         }
 
+        private SftpClient activeSftp = null;
+        private SshClient activeSsh = null;
+
         private ConnectionNodeHolder connections = new ConnectionNodeHolder();
 
         private ConnectionManager()
         {
         }
 
-        private string opkDir = "/boot/apps/";
+        private string opkDir = "/media/data/apps/";
         private string username = "root";
         private string passphrase = "";
         private bool passphraseOk = false;
@@ -53,6 +56,125 @@ namespace GCWZeroManager
         {
             get { return opkDir; }
         }
+
+        public bool Connected
+        {
+            get
+            {
+                if (activeSftp == null || activeSsh == null)
+                    return false;
+
+                if (!activeSftp.IsConnected || !activeSsh.IsConnected)
+                {
+                    if (activeSftp.IsConnected)
+                        activeSftp.Disconnect();
+                    if (activeSsh.IsConnected)
+                        activeSsh.Disconnect();
+
+                    activeSftp = null;
+                    activeSsh = null;
+
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        public bool Connect()
+        {
+            ConnectionNode conn = connections.GetActiveConnection();
+            if (conn == null)
+            {
+                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                return false;
+            }
+
+            if (activeSftp != null && activeSftp.IsConnected)
+                activeSftp.Disconnect();
+            if (activeSsh != null && activeSsh.IsConnected)
+                activeSsh.Disconnect();
+
+            activeSftp = ConnectSFTP(conn);
+            if (activeSftp == null)
+            {
+                return false;
+            }
+
+            activeSsh = ConnectSSH(conn);
+            if (activeSsh == null)
+            {
+                activeSftp.Disconnect();
+                activeSftp = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        public List<FileNode> ListFiles(string directory)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return null;
+
+            List<FileNode> list = new List<FileNode>();
+
+            foreach (SftpFile file in activeSftp.ListDirectory(directory))
+            {
+                if (file.Name == "." || file.Name == "..")
+                    continue;
+
+                FileNode opk = new FileNode();
+                opk.Filename = file.Name;
+                opk.Size = new SizeElement(file.Length);
+
+                if (file.IsDirectory)
+                    opk.FileType = FileType.Directory;
+                else if (file.IsSymbolicLink)
+                    opk.FileType = FileType.SymLink;
+                else if (file.IsRegularFile)
+                    opk.FileType = FileType.RegularFile;
+                else
+                    opk.FileType = FileType.Other;
+
+                list.Add(opk);
+            }
+
+            return list;
+        }
+
+        public List<OPKFile> ListOPKs()
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return null;
+
+            List<OPKFile> list = new List<OPKFile>();
+
+            foreach (SftpFile file in activeSftp.ListDirectory(opkDir))
+            {
+                if (file.IsRegularFile)
+                {
+                    OPKFile opk = new OPKFile();
+                    opk.Filename = file.Name;
+                    opk.Title = file.Name; // FIXME load this somehow in a thread later somewhere
+                    opk.Size = new SizeElement(file.Length);
+                    list.Add(opk);
+                }
+            }
+
+            return list;
+        }
+
+
+
+
+
+
+
+
+
+
+        // OLD STUFF BELOW!!
 
         public ConnectionInfo GetConnectionInfo(ConnectionNode conn)
         {
@@ -384,38 +506,6 @@ namespace GCWZeroManager
 
             result = "OK";
             return true;
-        }
-
-        public List<FileNode> ListFiles(string directory)
-        {
-            SftpClient sftp = ConnectWithActiveConnectionSFTP();
-            if (sftp == null || !sftp.IsConnected)
-                return null;
-
-            List<FileNode> list = new List<FileNode>();
-
-            foreach (SftpFile file in sftp.ListDirectory(directory))
-            {
-                if (file.Name == "." || file.Name == "..")
-                    continue;
-
-                FileNode opk = new FileNode();
-                opk.Filename = file.Name;
-                opk.Size = new SizeElement(file.Length);
-
-                if (file.IsRegularFile)
-                    opk.FileType = FileType.RegularFile;
-                else if (file.IsDirectory)
-                    opk.FileType = FileType.Directory;
-                else
-                    opk.FileType = FileType.Other;
-
-                list.Add(opk);
-            }
-
-            sftp.Disconnect();
-
-            return list;
         }
     }
 }
