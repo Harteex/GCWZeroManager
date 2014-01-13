@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop">
+        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="LightGray">
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="Control.BorderThickness" Value="0" />
@@ -18,6 +18,13 @@
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
+                <DataGridTemplateColumn CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding Path=Icon}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding Path=Filename}" Header="Filename" Width="*" />
                 <DataGridTextColumn Binding="{Binding Path=Size}" Header="Size" Width="60">
                     <DataGridTextColumn.CellStyle>

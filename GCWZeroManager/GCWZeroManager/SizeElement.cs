@@ -22,6 +22,9 @@ namespace GCWZeroManager
 
         public override string ToString()
         {
+            if (bytes == -1)
+                return "";
+
             long size = bytes;
             if (size < 1024)
                 return "" + size + " B";

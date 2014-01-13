@@ -1,9 +1,11 @@
 ÄNDRA HUR CONNECTIONS FUNKAR? ha alltid anslutningen igång??
 
-* Ny system info ikon...
+* Disconnect on man byter active connection!
 
-FileBrowser:
-Ha knappfält... Homeknapp, refresh, skapa ny mapp... mer? sen kan det stå text typ Dragndrop to transfer files
+* First time you click on Add OPKs or upload file, inform about dragndrop
+* Ny system info ikon... alla nya från kde???
+* tooltip på toolbaren i files!
+* Sortera mapparna längst upp alltid på name...
 
 NYTT:
 * Krashar om man försöker överföra filer som flyttats / tagits bort

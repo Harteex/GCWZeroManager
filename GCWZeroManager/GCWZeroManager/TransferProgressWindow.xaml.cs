@@ -82,15 +82,19 @@ namespace GCWZeroManager
             BackgroundWorker worker = sender as BackgroundWorker;
 
             ConnectionInfo cInfo = (ConnectionInfo)e.Argument;
-            SftpClient sftp = ConnectionManager.Instance.ConnectSFTP(cInfo);
 
-            if (sftp == null || !sftp.IsConnected)
+            if (!ConnectionManager.Instance.Connected)
             {
-                MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                e.Result = new WorkerCompletedArgs(null, false, "Connection Failed!");
-                return;
+                    e.Result = new WorkerCompletedArgs(null, false, "Connection Failed!");
+                    return;
+                }
             }
+
+            SftpClient sftp = ConnectionManager.Instance.GetActiveSftpConnection();
 
             ProgressState progress = new ProgressState();
             progress.CurFileProgressPercent = 0;
@@ -107,8 +111,6 @@ namespace GCWZeroManager
             }
 
             workerThread.ReportProgress(0, progress);
-
-            sftp.Disconnect();
 
             scp = ConnectionManager.Instance.ConnectSCP(cInfo);
 

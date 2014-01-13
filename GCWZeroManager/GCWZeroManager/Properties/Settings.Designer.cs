@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GCWZeroManager2.Properties
+namespace GCWZeroManager.Properties
 {
 
 

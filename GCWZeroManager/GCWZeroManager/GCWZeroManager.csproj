@@ -210,6 +210,12 @@
     <Resource Include="delete_48.png" />
     <Resource Include="info_48.png" />
     <Resource Include="folder_48.png" />
+    <Resource Include="Resources\Icons\icon-folder.png" />
+    <Resource Include="Resources\Icons\icon-audio.png" />
+    <Resource Include="Resources\Icons\icon-file.png" />
+    <Resource Include="Resources\Icons\icon-folder-symlink.png" />
+    <Resource Include="Resources\Icons\icon-image.png" />
+    <Resource Include="Resources\Icons\icon-text.png" />
     <Content Include="Renci.SshNet.dll" />
     <Resource Include="toolbar-go-home.png" />
     <Resource Include="toolbar-delete.png" />

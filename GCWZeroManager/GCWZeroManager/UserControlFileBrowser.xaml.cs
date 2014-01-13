@@ -28,7 +28,7 @@ namespace GCWZeroManager
             InitializeComponent();
             gridFileList.ItemsSource = new ListCollectionView(files);
 
-            gridFileList.ColumnFromDisplayIndex(0).SortDirection = ListSortDirection.Ascending;
+            gridFileList.ColumnFromDisplayIndex(1).SortDirection = ListSortDirection.Ascending;
             ICollectionView view = CollectionViewSource.GetDefaultView(gridFileList.ItemsSource);
             view.SortDescriptions.Clear();
             view.SortDescriptions.Add(new SortDescription("Filename", ListSortDirection.Ascending));
