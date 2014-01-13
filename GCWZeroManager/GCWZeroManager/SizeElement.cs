@@ -58,12 +58,12 @@ namespace GCWZeroManager
         {
             SizeElement o = (SizeElement)other;
             if (this.Bytes > o.Bytes)
-                return -1;
+                return 1;
 
             if (this.Bytes == o.Bytes)
                 return 0;
 
-            return 1;
+            return -1;
         }
     }
 }
