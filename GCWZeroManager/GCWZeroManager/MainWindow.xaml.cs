@@ -48,6 +48,7 @@ namespace GCWZeroManager
                 comboBoxConnections.Items.Refresh();
                 comboBoxConnections.SelectedItem = null;
                 comboBoxConnections.SelectedItem = activeCn;
+                ConfigurationManager.Instance.SaveConnections();
             }
         }
 
@@ -62,6 +63,7 @@ namespace GCWZeroManager
                 ConnectionManager.Instance.AddConnection(cn);
                 comboBoxConnections.Items.Refresh();
                 comboBoxConnections.SelectedItem = cn;
+                ConfigurationManager.Instance.SaveConnections();
             }
         }
 
@@ -77,6 +79,7 @@ namespace GCWZeroManager
                 ConnectionManager.Instance.Connections.DeleteActiveConnection();
                 comboBoxConnections.Items.Refresh();
                 comboBoxConnections.SelectedItem = ConnectionManager.Instance.Connections.GetActiveConnection();
+                ConfigurationManager.Instance.SaveConnections();
             }
         }
 
@@ -95,6 +98,7 @@ namespace GCWZeroManager
         private void comboBoxConnections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ConnectionManager.Instance.Connections.SetActiveConnection((ConnectionNode)comboBoxConnections.SelectedItem);
+            ConfigurationManager.Instance.SaveConnections();
         }
     }
 }
