@@ -10,34 +10,34 @@
             </ListBox.Resources>
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
-                    <Image Height="48" Source="software_48.png" Margin="0,2,0,0"></Image>
+                    <Image Height="48" Source="Resources/Menu/menu-install-software48.png" Margin="0,2,0,0"></Image>
                     <TextBlock Text="Install Software" Margin="0" VerticalAlignment="Center"/>
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
-                    <Image Height="48" Source="delete_48.png" Margin="0,2,0,0"></Image>
+                    <Image Height="48" Source="Resources/Menu/menu-manage-software48.png" Margin="0,2,0,0"></Image>
                     <TextBlock Text="Manage Software" Margin="0" VerticalAlignment="Center" />
 
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
-                    <Image Height="48" Source="folder_48.png" Margin="0,2,0,0"></Image>
+                    <Image Height="48" Source="Resources/Menu/menu-files48.png" Margin="0,2,0,0"></Image>
                     <TextBlock Text="    Files    " Margin="0" VerticalAlignment="Center" />
 
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
-                    <Image Height="48" Source="world_48.png" Margin="0,2,0,0"></Image>
+                    <Image Height="48" Source="Resources/Menu/menu-system-info48.png" Margin="0,2,0,0"></Image>
                     <TextBlock Text="System Info" Margin="0" VerticalAlignment="Center" />
 
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Vertical">
-                    <Image Height="48" Source="info_48.png" Margin="0,2,0,0"></Image>
+                    <Image Height="48" Source="Resources/Menu/menu-about48.png" Margin="0,2,0,0"></Image>
                     <TextBlock Text="  About" Margin="0" VerticalAlignment="Center" />
 
                 </StackPanel>

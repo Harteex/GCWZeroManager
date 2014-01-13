@@ -202,14 +202,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="software_48.png" />
-    <Resource Include="world_48.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="todo.txt" />
-    <Resource Include="delete_48.png" />
-    <Resource Include="info_48.png" />
-    <Resource Include="folder_48.png" />
     <Resource Include="Resources\Icons\icon-folder.png" />
     <Resource Include="Resources\Icons\icon-audio.png" />
     <Resource Include="Resources\Icons\icon-file.png" />
@@ -222,6 +215,11 @@
     <Resource Include="toolbar-go-parent-directory.png" />
     <Resource Include="toolbar-new-folder.png" />
     <Resource Include="toolbar-refresh.png" />
+    <Resource Include="Resources\Menu\menu-files48.png" />
+    <Resource Include="Resources\Menu\menu-install-software48.png" />
+    <Resource Include="Resources\Menu\menu-about48.png" />
+    <Resource Include="Resources\Menu\menu-manage-software48.png" />
+    <Resource Include="Resources\Menu\menu-system-info48.png" />
     <Content Include="WinSCP.dll" />
     <Content Include="WinSCP.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
