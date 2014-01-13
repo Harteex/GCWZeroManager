@@ -36,21 +36,21 @@
             </DataGrid.Columns>
         </DataGrid>
         <ToolBar ToolBarTray.IsLocked="True" Height="32" HorizontalAlignment="Stretch" Margin="0,0,0,0" Name="toolBar1" VerticalAlignment="Top">
-            <Button Name="buttonHome" Click="buttonHome_Click">
-                <Image Width="22" Height="22" Source="toolbar-go-home.png" />
+            <Button Name="buttonHome" Click="buttonHome_Click" ToolTip="Home directory">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-go-home.png" />
             </Button>
-            <Button Name="buttonParentDir" Click="buttonParentDir_Click">
-                <Image Width="22" Height="22" Source="toolbar-go-parent-directory.png" />
+            <Button Name="buttonParentDir" Click="buttonParentDir_Click" ToolTip="Parent directory">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-go-parent-directory.png" />
             </Button>
             <Separator Margin="5,0,5,0"/>
-            <Button Name="buttonRefresh">
-                <Image Width="22" Height="22" Source="toolbar-refresh.png" />
+            <Button Name="buttonRefresh" ToolTip="Refresh" Click="buttonRefresh_Click">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-refresh.png" />
             </Button>
-            <Button Name="buttonDelete">
-                <Image Width="22" Height="22" Source="toolbar-delete.png" />
+            <Button Name="buttonDelete" ToolTip="Delete" Click="buttonDelete_Click">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-delete.png" />
             </Button>
-            <Button Name="buttonNewFolder">
-                <Image Width="22" Height="22" Source="toolbar-new-folder.png" />
+            <Button Name="buttonNewFolder" ToolTip="New folder" Click="buttonNewFolder_Click">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-new-folder.png" />
             </Button>
         </ToolBar>
         <Label Content="Path:" Height="28" HorizontalAlignment="Left" Margin="0,33,0,0" Name="labelPath" VerticalAlignment="Top" />

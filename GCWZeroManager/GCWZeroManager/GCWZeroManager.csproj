@@ -82,6 +82,9 @@
       <DependentUpon>SetupKeysWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SizeElement.cs" />
+    <Compile Include="TextInputDialog.xaml.cs">
+      <DependentUpon>TextInputDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TransferProgressWindow.xaml.cs">
       <DependentUpon>TransferProgressWindow.xaml</DependentUpon>
     </Compile>
@@ -133,6 +136,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SetupKeysWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TextInputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -210,11 +217,11 @@
     <Resource Include="Resources\Icons\icon-image.png" />
     <Resource Include="Resources\Icons\icon-text.png" />
     <Content Include="Renci.SshNet.dll" />
-    <Resource Include="toolbar-go-home.png" />
-    <Resource Include="toolbar-delete.png" />
-    <Resource Include="toolbar-go-parent-directory.png" />
-    <Resource Include="toolbar-new-folder.png" />
-    <Resource Include="toolbar-refresh.png" />
+    <Resource Include="Resources\Toolbar\toolbar-go-home.png" />
+    <Resource Include="Resources\Toolbar\toolbar-delete.png" />
+    <Resource Include="Resources\Toolbar\toolbar-go-parent-directory.png" />
+    <Resource Include="Resources\Toolbar\toolbar-new-folder.png" />
+    <Resource Include="Resources\Toolbar\toolbar-refresh.png" />
     <Resource Include="Resources\Menu\menu-files48.png" />
     <Resource Include="Resources\Menu\menu-install-software48.png" />
     <Resource Include="Resources\Menu\menu-about48.png" />

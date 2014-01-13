@@ -60,6 +60,7 @@ namespace GCWZeroManager
             }
 
             SshClient ssh = ConnectionManager.Instance.GetActiveSshConnection();
+            SshCommand cmd;
 
             textBoxSystemInfo.Text = "";
 
@@ -67,7 +68,7 @@ namespace GCWZeroManager
             textBoxSystemInfo.Text += "********** system_info **********\n";
             textBoxSystemInfo.Text += "*********************************\n\n";
 
-            SshCommand cmd = ssh.CreateCommand("/usr/bin/system_info");
+            cmd = ssh.CreateCommand("/usr/bin/system_info");
             cmd.Execute();
             textBoxSystemInfo.Text += cmd.Result;
             textBoxSystemInfo.Text += "\n";
@@ -109,43 +110,10 @@ namespace GCWZeroManager
             textBoxSystemInfo.Text += "\n";
 
             textBoxSystemInfo.Text += "*********************************\n";
-            textBoxSystemInfo.Text += "******** sha1sum rootfs *********\n";
-            textBoxSystemInfo.Text += "*********************************\n\n";
-
-            string actualSha1;
-            string expectedSha1;
-
-            cmd = ssh.CreateCommand("sha1sum /media/data/rootfs.bin");
-            cmd.Execute();
-            actualSha1 = cmd.Result.Split(new char[] {' '})[0].Trim();
-
-            cmd = ssh.CreateCommand("cat /media/data/rootfs.bin.sha1");
-            cmd.Execute();
-            expectedSha1 = cmd.Result.Split(new char[] { ' ' })[0].Trim();
-
-            textBoxSystemInfo.Text += "Actual: " + actualSha1 + "\n";
-            textBoxSystemInfo.Text += "Expected: " + expectedSha1 + "\n";
-            if (actualSha1 == expectedSha1)
-                textBoxSystemInfo.Text += "Rootfs SHA1 OK\n";
-            else
-                textBoxSystemInfo.Text += "Rootfs SHA1 MISMATCH!\n";
-
-            textBoxSystemInfo.Text += "\n";
-
-            textBoxSystemInfo.Text += "*********************************\n";
             textBoxSystemInfo.Text += "************* dmesg *************\n";
             textBoxSystemInfo.Text += "*********************************\n\n";
 
             cmd = ssh.CreateCommand("dmesg");
-            cmd.Execute();
-            textBoxSystemInfo.Text += cmd.Result;
-            textBoxSystemInfo.Text += "\n";
-
-            textBoxSystemInfo.Text += "*********************************\n";
-            textBoxSystemInfo.Text += "************** log **************\n";
-            textBoxSystemInfo.Text += "*********************************\n\n";
-
-            cmd = ssh.CreateCommand("cat /var/log/messages");
             cmd.Execute();
             textBoxSystemInfo.Text += cmd.Result;
             textBoxSystemInfo.Text += "\n";
@@ -154,6 +122,64 @@ namespace GCWZeroManager
         private void buttonCopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetData(DataFormats.Text, textBoxSystemInfo.Text);
+        }
+
+        private void buttonVerifyIntegrity_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ConnectionManager.Instance.Connected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            SshClient ssh = ConnectionManager.Instance.GetActiveSshConnection();
+            SshCommand cmd;
+
+            string actualSha1;
+            string expectedSha1;
+            string outMsg = "";
+
+            cmd = ssh.CreateCommand("sha1sum /media/data/rootfs.bin");
+            cmd.Execute();
+            actualSha1 = cmd.Result.Split(new char[] { ' ' })[0].Trim();
+
+            cmd = ssh.CreateCommand("cat /media/data/rootfs.bin.sha1");
+            cmd.Execute();
+            expectedSha1 = cmd.Result.Split(new char[] { ' ' })[0].Trim();
+
+            outMsg += "Actual: " + actualSha1 + "\n";
+            outMsg += "Expected: " + expectedSha1 + "\n";
+            if (actualSha1 == expectedSha1)
+                outMsg += "Rootfs SHA1 OK\n";
+            else
+                outMsg += "Rootfs SHA1 MISMATCH!\n";
+
+            MessageBox.Show(outMsg, "Integrity Check", MessageBoxButton.OK, (actualSha1 == expectedSha1) ? MessageBoxImage.Information : MessageBoxImage.Warning);
+        }
+
+        private void buttonSystemLog_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ConnectionManager.Instance.Connected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Unable to connect!", "Unable to connect", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            SshClient ssh = ConnectionManager.Instance.GetActiveSshConnection();
+            SshCommand cmd;
+
+            textBoxSystemInfo.Text = "";
+
+            cmd = ssh.CreateCommand("cat /var/log/messages");
+            cmd.Execute();
+            textBoxSystemInfo.Text += cmd.Result;
+            textBoxSystemInfo.Text += "\n";
         }
     }
 }

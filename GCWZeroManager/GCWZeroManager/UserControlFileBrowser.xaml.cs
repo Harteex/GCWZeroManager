@@ -97,6 +97,34 @@ namespace GCWZeroManager
             UpdateList();
         }
 
+        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateList();
+        }
+
+        private void buttonDelete_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void buttonNewFolder_Click(object sender, RoutedEventArgs e)
+        {
+            TextInputDialog input = new TextInputDialog("New Folder", "Enter a name for the new folder", "Name:");
+            input.ShowDialog();
+            if (input.DialogResult.HasValue && input.DialogResult.Value)
+            {
+                try
+                {
+                    ConnectionManager.Instance.CreateFolder(textBoxPath.Text, input.InputText);
+                    UpdateList();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error creating folder: " + ex.Message, "Error Creating Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void gridFileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGridRow row = (DataGridRow)sender;

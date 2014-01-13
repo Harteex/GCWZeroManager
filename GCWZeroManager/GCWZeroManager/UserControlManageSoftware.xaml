@@ -7,6 +7,12 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <DataGrid AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,5,0,32" Name="gridSoftwareList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="LightGray">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Name="menuItemDownload" Header="Download" Click="menuItemDownload_Click" />
+                    <MenuItem Name="menuItemUninstall" Header="Uninstall" Click="menuItemUninstall_Click" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="BorderThickness" Value="0"/>

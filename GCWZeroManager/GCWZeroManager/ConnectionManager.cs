@@ -202,7 +202,17 @@ namespace GCWZeroManager
             return activeSsh;
         }
 
+        public bool CreateFolder(string path, string folderName)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
 
+            string pathToCreate = path + (path.EndsWith("/") ? "" : "/") + folderName;
+
+            activeSftp.CreateDirectory(pathToCreate);
+
+            return true;
+        }
 
 
 

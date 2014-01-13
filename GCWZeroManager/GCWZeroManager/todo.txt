@@ -1,30 +1,30 @@
-ÄNDRA HUR CONNECTIONS FUNKAR? ha alltid anslutningen igång??
 
+*** MAIN WINDOW / GENERAL ***
+* ÄNDRA HUR CONNECTIONS FUNKAR? ha alltid anslutningen igång??
 * Disconnect on man byter active connection!
-
 * First time you click on Add OPKs or upload file, inform about dragndrop
-* Ny system info ikon... alla nya från kde???
-* tooltip på toolbaren i files!
-* Sortera mapparna längst upp alltid på name...
-
-NYTT:
 * Krashar om man försöker överföra filer som flyttats / tagits bort
-* Vi borde spara när man ändrar inställningar direkt, inte bara på avslut!
+
+
+*** MANAGE SOFTWARE ***
+* Allow user to download OPK files from manage apps
+
+
+*** FILES ***
+* Sortera alltid mapparna längst upp på name...
+* tooltip på toolbaren!
+* Om man försöker gå in i invalid path, ge felmeddelande och gå tillbaka till förra ok pathen... gör dock inte det om förra ok pathen blir fel, för då är det nog nåt annat fel.
+* Gör det möjligt att skriva in path själv
+* Stödj path utan avslutande /
+* Sätt ikonerna till no stretch och fast storlek och se om de blir mindre blurry????
+* Allow user to upload and download files
+
+
+
+
 
 Backup:
 another useful option would be a backup feature that would rsync all the dot-directories under $HOME
-
-(02:16:04) (Harteex) mth, maybe it would be useful to have an option in the gcw zero manager in the future to collect system information, and it would run a number of commands to get valuable information
-(02:16:20) (Harteex) regarding the problem in #gcw
-(02:16:41) (pcercuei) Harteex: your manager can SSH, right?
-(02:16:45) (Harteex) yes
-(02:16:58) (pcercuei) if it installs a key, then you have full access to the commands
-(02:17:02) (Harteex) yep
-(02:17:22) (mth) Harteex: yes, that would be very useful
-(02:17:35) (mth) dmesg would be good to have
-(02:17:43) (pcercuei) ssh opendingux.local /usr/bin/system_info
-(02:17:56) (mth) also, checking the kernel and rootfs sha1 and comparing that to the on-device .sha1 files
-(02:18:16) (mth) battery level
 
 * Background image in datagrid which says dragndrop or something, should only show up when empty... also centered, not repeated.
 http://stackoverflow.com/questions/13509902/turning-a-wpf-datagrid-background-image-on-and-off

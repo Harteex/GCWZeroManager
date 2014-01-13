@@ -4,13 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
         <Label Content="Installed Version:" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="labelInstalledVer" VerticalAlignment="Top" />
         <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="12,30,0,0" Name="labelInstalledVerContent" VerticalAlignment="Top" />
         <Button Content="Get Installed Version" Height="23" HorizontalAlignment="Left" Margin="12,62,0,0" Name="buttonReadInstalledVer" VerticalAlignment="Top" Width="130" Click="buttonReadInstalledVer_Click" />
-        <TextBox HorizontalAlignment="Stretch" IsReadOnly="True" Margin="12,101,12,29" Name="textBoxSystemInfo" TextWrapping="WrapWithOverflow" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" />
-        <Button Content="Get System Info" HorizontalAlignment="Left" Margin="12,0,0,0" Name="buttonSystemInfo" Width="100" Height="23" VerticalAlignment="Bottom" Click="buttonSystemInfo_Click" />
-        <Button Content="Copy to Clipboard" Height="23" HorizontalAlignment="Left" Margin="118,0,0,0" Name="buttonCopyToClipboard" VerticalAlignment="Bottom" Width="118" Click="buttonCopyToClipboard_Click" />
+        <TextBox HorizontalAlignment="Stretch" IsReadOnly="True" Margin="12,101,12,77" Name="textBoxSystemInfo" TextWrapping="WrapWithOverflow" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" />
+        <Button Content="Get System Info" HorizontalAlignment="Left" Margin="12,0,0,48" Name="buttonSystemInfo" Width="100" Height="23" VerticalAlignment="Bottom" Click="buttonSystemInfo_Click" />
+        <Button Content="Copy to Clipboard" Height="23" Margin="0,0,12,48" Name="buttonCopyToClipboard" VerticalAlignment="Bottom" Click="buttonCopyToClipboard_Click" HorizontalAlignment="Right" Width="118" />
+        <Button Content="Verify Rootfs Integrity" HorizontalAlignment="Left" Margin="12,0,0,0" Name="buttonVerifyIntegrity" Width="148" Height="23" VerticalAlignment="Bottom" Click="buttonVerifyIntegrity_Click" />
+        <Button Content="Get System Log" HorizontalAlignment="Left" Margin="118,0,0,48" Name="buttonSystemLog" Width="101" Height="23" VerticalAlignment="Bottom" Click="buttonSystemLog_Click" />
     </Grid>
 </UserControl>

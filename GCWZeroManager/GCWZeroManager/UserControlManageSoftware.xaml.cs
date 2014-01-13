@@ -63,12 +63,7 @@ namespace GCWZeroManager
             ((ListCollectionView)this.gridSoftwareList.ItemsSource).Refresh();
         }
 
-        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateList();
-        }
-
-        private void buttonUninstall_Click(object sender, RoutedEventArgs e)
+        private void UninstallSelected()
         {
             if (gridSoftwareList.SelectedIndex == -1)
             {
@@ -95,6 +90,26 @@ namespace GCWZeroManager
                 gridSoftwareList.Items.Refresh();
                 MessageBox.Show("Operation complete", "Operation complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateList();
+        }
+
+        private void buttonUninstall_Click(object sender, RoutedEventArgs e)
+        {
+            UninstallSelected();
+        }
+
+        private void menuItemUninstall_Click(object sender, RoutedEventArgs e)
+        {
+            UninstallSelected();
+        }
+
+        private void menuItemDownload_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO
         }
     }
 }
