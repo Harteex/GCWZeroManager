@@ -116,6 +116,15 @@ namespace GCWZeroManager
                 textBoxSystemInfo.Text += "\n";
 
                 textBoxSystemInfo.Text += "*********************************\n";
+                textBoxSystemInfo.Text += "************** ps ***************\n";
+                textBoxSystemInfo.Text += "*********************************\n\n";
+
+                cmd = ssh.CreateCommand("ps");
+                cmd.Execute();
+                textBoxSystemInfo.Text += cmd.Result;
+                textBoxSystemInfo.Text += "\n";
+
+                textBoxSystemInfo.Text += "*********************************\n";
                 textBoxSystemInfo.Text += "************* dmesg *************\n";
                 textBoxSystemInfo.Text += "*********************************\n\n";
 
