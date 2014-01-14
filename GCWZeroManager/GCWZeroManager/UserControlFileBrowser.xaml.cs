@@ -28,6 +28,7 @@ namespace GCWZeroManager
         public UserControlFileBrowser()
         {
             InitializeComponent();
+            textBoxPath.Text = ConnectionManager.Instance.HomeDirectory;
             gridFileList.ItemsSource = new ListCollectionView(files);
 
             gridFileList.ColumnFromDisplayIndex(1).SortDirection = ListSortDirection.Ascending;
@@ -39,7 +40,7 @@ namespace GCWZeroManager
 
         private void UpdateList()
         {
-            if (!ConnectionManager.Instance.Connected)
+            if (!ConnectionManager.Instance.IsConnected)
             {
                 if (!ConnectionManager.Instance.Connect())
                 {
@@ -77,6 +78,11 @@ namespace GCWZeroManager
                     MessageBox.Show("Could not open directory!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
                     textBoxPath.Text = lastOkPath;
                 }
+            }
+            catch (SshOperationTimeoutException)
+            {
+                MessageBox.Show("Connection timed out while listing files.", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                ConnectionManager.Instance.Disconnect(true);
             }
 
             ((ListCollectionView)this.gridFileList.ItemsSource).Refresh();
@@ -132,13 +138,21 @@ namespace GCWZeroManager
                 MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            UpdateList(); // FIXME don't do this if we were disconnected!!
+            if (transferWindow.IsConnectionError)
+            {
+                ConnectionManager.Instance.Disconnect(true);
+            }
+            else
+            {
+                UpdateList();
+            }
+
             e.Handled = true;
         }
 
         private void buttonHome_Click(object sender, RoutedEventArgs e)
         {
-            textBoxPath.Text = "/usr/local/home/";
+            textBoxPath.Text = ConnectionManager.Instance.HomeDirectory;
             UpdateList();
         }
 
@@ -192,6 +206,11 @@ namespace GCWZeroManager
                 {
                     ConnectionManager.Instance.DeleteFiles(selectedFiles);
                 }
+                catch (SshOperationTimeoutException ex)
+                {
+                    MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ConnectionManager.Instance.Disconnect(true);
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -201,12 +220,18 @@ namespace GCWZeroManager
                 {
                     ConnectionManager.Instance.DeleteDirectories(selectedDirectories);
                 }
+                catch (SshOperationTimeoutException ex)
+                {
+                    MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ConnectionManager.Instance.Disconnect(true);
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Delete failed: " + ex.Message + ". Make sure the directory is empty.", "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
-                UpdateList();
+                if (ConnectionManager.Instance.IsConnected)
+                    UpdateList();
             }
         }
 
@@ -220,6 +245,11 @@ namespace GCWZeroManager
                 {
                     ConnectionManager.Instance.CreateFolder(textBoxPath.Text, input.InputText);
                     UpdateList();
+                }
+                catch (SshOperationTimeoutException ex)
+                {
+                    MessageBox.Show("Error creating folder: " + ex.Message, "Error Creating Folder", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ConnectionManager.Instance.Disconnect(true);
                 }
                 catch (Exception ex)
                 {

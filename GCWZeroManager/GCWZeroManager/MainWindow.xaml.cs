@@ -97,6 +97,7 @@ namespace GCWZeroManager
 
         private void comboBoxConnections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            ConnectionManager.Instance.Disconnect(false);
             ConnectionManager.Instance.Connections.SetActiveConnection((ConnectionNode)comboBoxConnections.SelectedItem);
             ConfigurationManager.Instance.SaveConnections();
         }

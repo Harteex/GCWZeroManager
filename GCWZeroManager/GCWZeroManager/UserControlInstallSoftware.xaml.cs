@@ -112,23 +112,23 @@ namespace GCWZeroManager
                 return;
             }
 
-            ConnectionInfo cInfo = ConnectionManager.Instance.GetConnectionInfo(ConnectionManager.Instance.Connections.GetActiveConnection());
-            if (cInfo == null)
-            {
-                return;
-            }
-
-            //ConnectionManager.Instance.UploadFiles(opkFiles);
-
             TransferProgressWindow transferWindow = new TransferProgressWindow();
-            transferWindow.UploadFiles(opkFiles, ConnectionManager.Instance.OPKDir);
+            transferWindow.UploadFiles(opkFiles, ConnectionManager.Instance.OPKDirectory);
             Nullable<bool> result = transferWindow.ShowDialog();
 
             if (result.HasValue && result.Value)
             {
-                MessageBox.Show("Operation complete!", "Operation complete", MessageBoxButton.OK, MessageBoxImage.Information); // FIXME show number of files transferred etc
                 opkFiles.Clear();
                 gridPendingInstall.Items.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if (transferWindow.IsConnectionError)
+            {
+                ConnectionManager.Instance.Disconnect(true);
             }
         }
 

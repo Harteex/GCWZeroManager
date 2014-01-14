@@ -69,6 +69,9 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="ConnectionNode.cs" />
     <Compile Include="ConnectionNodeHolder.cs" />
+    <Compile Include="ConnectionStatusControl.xaml.cs">
+      <DependentUpon>ConnectionStatusControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EditConnectionWindow.xaml.cs">
       <DependentUpon>EditConnectionWindow.xaml</DependentUpon>
     </Compile>
@@ -116,6 +119,10 @@
     <Compile Include="WindowLicenses.xaml.cs">
       <DependentUpon>WindowLicenses.xaml</DependentUpon>
     </Compile>
+    <Page Include="ConnectionStatusControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="EditConnectionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -228,6 +235,9 @@
     <Resource Include="Resources\Menu\menu-about48.png" />
     <Resource Include="Resources\Menu\menu-manage-software48.png" />
     <Resource Include="Resources\Menu\menu-system-info48.png" />
+    <Resource Include="Resources\ConnectionIcons\connection-error16.png" />
+    <Resource Include="Resources\ConnectionIcons\connection-offline16.png" />
+    <Resource Include="Resources\ConnectionIcons\connection-online16.png" />
     <Content Include="WinSCP.dll" />
     <Content Include="WinSCP.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

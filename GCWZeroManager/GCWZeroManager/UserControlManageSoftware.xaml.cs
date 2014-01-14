@@ -36,7 +36,7 @@ namespace GCWZeroManager
 
         private void UpdateList()
         {
-            if (!ConnectionManager.Instance.Connected)
+            if (!ConnectionManager.Instance.IsConnected)
             {
                 if (!ConnectionManager.Instance.Connect())
                 {

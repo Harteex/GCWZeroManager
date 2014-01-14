@@ -40,5 +40,10 @@ namespace GCWZeroManager
             WindowLicenses licenseWindow = new WindowLicenses();
             licenseWindow.ShowDialog();
         }
+
+        private void OpenURL(string url)
+        {
+            Process.Start(url);
+        }
     }
 }

@@ -42,6 +42,12 @@ namespace GCWZeroManager
             get { return errorMessage; }
         }
 
+        bool connectionError = false;
+        public bool IsConnectionError
+        {
+            get { return connectionError; }
+        }
+
         public TransferProgressWindow()
         {
             InitializeComponent();
@@ -57,6 +63,8 @@ namespace GCWZeroManager
                 fileUploadNode.Filename = opk.Filename;
                 fileUploadNode.Path = opk.LocalPath;
                 fileUploadNode.Size = opk.Size;
+
+                fileNodes.Add(fileUploadNode);
             }
 
             UploadFiles(fileNodes, remotePath);
@@ -82,7 +90,7 @@ namespace GCWZeroManager
             labelTotalFilesData.Content = files.Count;
             labelFilesRemainingData.Content = files.Count;
 
-            if (!ConnectionManager.Instance.Connected)
+            if (!ConnectionManager.Instance.IsConnected)
             {
                 if (!ConnectionManager.Instance.Connect())
                 {
@@ -118,6 +126,8 @@ namespace GCWZeroManager
         {
             if (e.Cancelled)
             {
+                connectionError = false;
+
                 if (this.IsVisible)
                     DialogResult = null;
                 return;
@@ -129,6 +139,7 @@ namespace GCWZeroManager
                 wArgs.Scp.Disconnect();
 
             errorMessage = wArgs.ErrorMsg;
+            connectionError = !wArgs.Result;
 
             if (this.IsVisible)
                 DialogResult = wArgs.Result;
@@ -222,7 +233,7 @@ namespace GCWZeroManager
                 catch (ScpException se)
                 {
                     MessageBox.Show("Error: " + se.Message);
-                    e.Result = new WorkerCompletedArgs(scp, false, "Error: " + se.Message);
+                    e.Result = new WorkerCompletedArgs(scp, false, se.Message);
                     return;
                 }
                 catch (SocketException se)
@@ -242,7 +253,7 @@ namespace GCWZeroManager
                 }
                 catch (SshOperationTimeoutException se)
                 {
-                    e.Result = new WorkerCompletedArgs(scp, false, "Error: " + se.Message);
+                    e.Result = new WorkerCompletedArgs(scp, false, se.Message);
                     return;
                 }
                 catch (SshConnectionException se)

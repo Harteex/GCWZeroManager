@@ -8,9 +8,24 @@ using System.Xml.Serialization;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using System.Threading.Tasks;
 
 namespace GCWZeroManager
 {
+    public enum ConnectionState { Connected, DisconnectedNormal, DisconnectedError }
+    public class ConnectionStateEventArgs : EventArgs
+    {
+        public ConnectionStateEventArgs(ConnectionState state)
+        {
+            this.state = state;
+        }
+        private ConnectionState state;
+        public ConnectionState ConnectionState
+        {
+            get { return state; }
+        }
+    }
+
     public class ConnectionManager
     {
         // Handles connection configurations and the current active connection
@@ -37,12 +52,20 @@ namespace GCWZeroManager
         }
 
         private string opkDir = "/media/data/apps/";
+        private string homeDir = "/usr/local/home/";
         private string username = "root";
         private string passphrase = "";
         private bool passphraseOk = false;
 
         private TimeSpan connectingTimeout = new TimeSpan(0, 0, 10);
         private TimeSpan operationTimeout = new TimeSpan(0, 0, 8);
+
+        public event EventHandler<ConnectionStateEventArgs> ConnectionStateChanged;
+        protected virtual void OnConnectionStateChanged(ConnectionStateEventArgs e)
+        {
+            if (ConnectionStateChanged != null)
+                ConnectionStateChanged(this, e);
+        }
 
         public void AddConnection(ConnectionNode cn)
         {
@@ -55,12 +78,17 @@ namespace GCWZeroManager
             set { connections = value; }
         }
 
-        public string OPKDir
+        public string OPKDirectory
         {
             get { return opkDir; }
         }
 
-        public bool Connected
+        public string HomeDirectory
+        {
+            get { return homeDir; }
+        }
+
+        public bool IsConnected
         {
             get
             {
@@ -69,14 +97,7 @@ namespace GCWZeroManager
 
                 if (!activeSftp.IsConnected || !activeSsh.IsConnected)
                 {
-                    if (activeSftp.IsConnected)
-                        activeSftp.Disconnect();
-                    if (activeSsh.IsConnected)
-                        activeSsh.Disconnect();
-
-                    activeSftp = null;
-                    activeSsh = null;
-
+                    Disconnect(true);
                     return false;
                 }
 
@@ -90,6 +111,7 @@ namespace GCWZeroManager
             if (conn == null)
             {
                 MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedError));
                 return false;
             }
 
@@ -101,6 +123,7 @@ namespace GCWZeroManager
             activeSftp = ConnectSFTP(conn);
             if (activeSftp == null)
             {
+                OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedError));
                 return false;
             }
 
@@ -109,10 +132,56 @@ namespace GCWZeroManager
             {
                 activeSftp.Disconnect();
                 activeSftp = null;
+                OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedError));
                 return false;
             }
 
+            OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.Connected));
+
             return true;
+        }
+
+        private void DisconnectOld(SftpClient sftp, SshClient ssh)
+        {
+            try
+            {
+                if (sftp != null && sftp.IsConnected)
+                {
+                    sftp.Disconnect();
+                }
+            }
+            catch (Exception)
+            { }
+
+            try
+            {
+                if (ssh != null && ssh.IsConnected)
+                {
+                    ssh.Disconnect();
+                }
+            }
+            catch (Exception)
+            { }
+        }
+
+        public void Disconnect(bool becauseError)
+        {
+            SftpClient oldSftp = activeSftp;
+            SshClient oldSsh = activeSsh;
+
+            activeSftp = null;
+            activeSsh = null;
+
+            Task disconnectOldTask = Task.Factory.StartNew(() => DisconnectOld(oldSftp, oldSsh));
+
+            if (becauseError)
+            {
+                OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedError));
+            }
+            else
+            {
+                OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedNormal));
+            }
         }
 
         public List<FileNode> ListFiles(string directory)
