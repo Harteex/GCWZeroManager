@@ -45,5 +45,10 @@ namespace GCWZeroManager
         {
             Process.Start(url);
         }
+
+        private void buttonOpenHomepage_Click(object sender, RoutedEventArgs e)
+        {
+            OpenURL("http://www.gcw-zero.com/");
+        }
     }
 }

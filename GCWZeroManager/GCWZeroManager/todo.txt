@@ -1,128 +1,66 @@
 
 *** MAIN WINDOW / GENERAL ***
-* ÄNDRA HUR CONNECTIONS FUNKAR? ha alltid anslutningen igång??
-* Disconnect on man byter active connection!
+* Disconnect on man byter active connection! (also kill current passphrase??)
 * First time you click on Add OPKs or upload file, inform about dragndrop
 * Krashar om man försöker överföra filer som flyttats / tagits bort
+* Move all (most?) connection usage to its own thread, with a queue. If not all, make sure to guard with locks... then handle things asynchronously in the GUI.
+* Icon indicating if connected or not
+* Automatically load some data for example initial directory in Files if connected
+* Get rid of bool return statuses, use more exceptions. Create or find exception for not connected.
+* Transfer window title
+* Instructions on the add connection wizard should say it's safe to turn off password login in the network app
+* SYSTEM INFO: Add running processes
+* When browsing for ssh keys, default key browse dir in appdata
+
+
+*** INSTALL SOFTWARE ***
+* Display title correctly (port libopk? https://github.com/gcwnow/libopk)
 
 
 *** MANAGE SOFTWARE ***
 * Allow user to download OPK files from manage apps
+* Display title correctly (also, icon?)
 
 
 *** FILES ***
 * Sortera alltid mapparna längst upp på name...
-* tooltip på toolbaren!
-* Om man försöker gå in i invalid path, ge felmeddelande och gå tillbaka till förra ok pathen... gör dock inte det om förra ok pathen blir fel, för då är det nog nåt annat fel.
+* Toolbar icons for upload/download aswell..
 * Gör det möjligt att skriva in path själv
 * Stödj path utan avslutande /
-* Sätt ikonerna till no stretch och fast storlek och se om de blir mindre blurry????
-* Allow user to upload and download files
+* Allow user to download files
+* Allow delete with delete key
 
 
+*** NEW FEATURES ***
 
-
-
-Backup:
-another useful option would be a backup feature that would rsync all the dot-directories under $HOME
-
-* Background image in datagrid which says dragndrop or something, should only show up when empty... also centered, not repeated.
-http://stackoverflow.com/questions/13509902/turning-a-wpf-datagrid-background-image-on-and-off
-http://stackoverflow.com/questions/3100837/how-to-set-background-image-on-grid-in-wpf-using-c-sharp
-* Read title from OPKs
-  Port libopk? https://github.com/gcwnow/libopk
-* Make it possible to uninstall apps
-  - Use ssh and opkinfo or similar to find titles etc
-* System update should show current installed version
-* Make ssh work with passwords... make config app for that on the zero?
-* Sort datagrids on titles?
-* Show errors better such as connection failed etc
-* Info screen with credits and license for icons etc
-* Default key browse dir in appdata
-* Testa ordentligt när man tar setup keys och det... ändra guiden lite för den knappen???
-  - eller ta bort setup keys.. om man vill setupa keys så så får man helt enkelt skapa en ny??
-  - förifyllda värden duger nog.. <--- TESTA!!!
-
-
-
-SSH: bättre alternativ? http://sshnet.codeplex.com/
-
-SSDP:
-(00:56:49) (mth) Harteex: passwords is possible; xl0 got something working and then we found a cleaner way but that wasn't implemented yet
-(00:56:54) (mth) I can look up the logs and finish it
-(00:57:37) (Harteex) cool
-(00:59:22) (Harteex) That would also make it easier for me to do the OPK installer thingy GCW-2013 wanted
-(01:00:07) (zear) mth, you never got xl0's otg code/patches, did you?
-(01:04:56) (mth) only part of them, and those I integrated a few weeks ago
-(01:06:20) (mth) Harteex: I do think it's best if an installer would generate a private key and add the public key on the device's authorized keys list
-(01:06:27) (mth) but you need one successful login to be able to do that
-(01:07:04) (mth) that approach would avoid saving passwords
-(01:07:20) (mth) and it would allow a password reset without having to re-setup the installer
-(01:08:50) (Harteex) yea that could probably be done
-(01:08:57) (Harteex) if I'm able to connect with a password the first time
-(01:09:00) (mth) FTP via USB has no password, so you could use that for the key exchange the first time
-(01:09:45) (Harteex) yes, I just thought it would be much easier for the users if they didn't have to deal with any potential usb networking issues
-(01:10:41) (mth) depends on the OS; Linux and OS X and certain versions of Windows are fine, but other versions of Windows are a pain
-(01:10:56) (Harteex) yea
-(01:11:08) (Harteex) and especially since this is supposed to be a windows tool
-(01:11:22) (mth) please make it cross platform
-(01:11:46) (mth) some OS X users would like a transfer application as well
-(01:11:49) (Harteex) justin said he wanted a windows tool and that someone else made an OSX one I think, but this was a long time ago
-(01:12:13) (mth) I don't think it really make sense to have separate applications
-(01:12:19) (Harteex) yea
-(01:12:21) (mth) what language / toolkit did you plan to use?
-(01:12:33) (Harteex) I've already started, I'm using .net
-(01:12:47) (Harteex) but Mono should run fine on OSX I assume
-(01:13:01) (mth) depends on which APIs you use; it could run fine
-(01:13:05) (Harteex) I'll have to see if it works ok with WPF
-(01:13:43) (mth) I just finished the remake of Larry and that was written in Unity and ran reasonably well (there were bugs but Windows users reported the same bugs)
-(01:14:28) (mth) note that for WiFi you'd have to enter both the password and the IP address
-(01:15:19) (mth) unless you're using bonjour / zeroconf / DNS-SD, but that's not straightforward under Windows afaik
-(01:15:42) (Harteex) yea
-(01:16:31) (Harteex) would it be possible otherwise to include if I make a very small application that just listens on a standard UDP request? so I can broadcast and find the device?
-(01:19:22) (mth) on the Zero's side, no problem
-(01:19:41) (mth) are UDP broadcasts allowed if you have no privileges on Windows?
-(01:19:48) (Harteex) hmmm
-(01:19:51) (mth) for ports > 1024 maybe
-(01:20:09) (mth) some types of broadcasts are certainly restricted
-(01:20:21) (mth) and some users don't run as admin
-(01:20:29) (Harteex) yes, I will have to look that up
-(01:20:44) (mth) plus there is the question of what the default firewall settings are
-(01:20:52) (Harteex) but if that works, it will be a very easy way to identify the device on a network regardless of platform
-(01:21:08) (Harteex) ah true.. that too
-(01:21:16) (Harteex) how annoying..
-(01:21:23) (mth) DNS-SD was designed for this
-(01:21:31) (mth) but MS decided to go with UPNP instead
-(01:21:40) (mth) maybe you can do UPNP on the Zero
-(01:22:00) (Harteex) possibly
-(01:22:35) (mth) this is what MS supports: http://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
-(01:22:35) (Harteex) I could look into that
-(01:22:57) (mth) the chance of firewalls blocking that is smaller
-(01:23:04) (Harteex) yep
-(01:23:48) (mth) we've already got avahi running on the Zero, so the "beacon" application could use both avahi and SSDP to make itself known
-(01:24:01) (Harteex) yes
-(01:24:16) (mth) actually, avahi is always running, so the user wouldn't have to start the application for that
-(01:24:22) (Harteex) btw, samba is still planned to include right?
-(01:24:34) (mth) yes, it's something I'm looking at
-(01:24:45) (mth) I had it running once, but it was really slow
-(01:24:54) (mth) so it will certainly work, but may not be ideal
-(01:25:07) (mth) WebDAV is another possibility
-(01:25:09) (Harteex) I could do some simple configuration GUI for that when it's up and running, because users probably want to be able to turn it on and off and set passwords etc
-(01:25:14) (mth) but that is less discoverable, I think
-(01:25:18) (Harteex) ah k
-(01:25:35) (johnnyonflame) Harteex, if you do something with SSDP please comment it throughly so I can steal your work
-(01:25:40) (Harteex) lol
-(01:25:56) (Harteex) I don't believe in comments ;) j/k
-
-
-
-
-
-
-SSDP:
+* SSDP
+Find GCW Zero automatically, instead of having to enter an IP / Host
+http://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
 https://github.com/tomwaters/SSDP-Tester
 https://gist.github.com/provegard/1435555
 https://github.com/gavdraper/SSDPSonos/blob/master/SSDPSharp/SsdpLocator.cs
+Use windows implementation: http://managedupnp.codeplex.com/
+
+* Backup
+"another useful option would be a backup feature that would rsync all the dot-directories under $HOME"
+
+* Background image in datagrid which says dragndrop here or something, should only show up when empty... also centered, not repeated.
+http://stackoverflow.com/questions/13509902/turning-a-wpf-datagrid-background-image-on-and-off
+http://stackoverflow.com/questions/3100837/how-to-set-background-image-on-grid-in-wpf-using-c-sharp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -188,13 +126,5 @@ public async static Task<IEnumerable<HueBridge>> DiscoverAsync(TimeSpan timeout)
 
 
 
-
-
 ÄVEN:
 https://github.com/gavdraper/SSDPSonos
-
-
-
-
-ELLER ANVÄNDA windows inbyggda tjänst?
-http://managedupnp.codeplex.com/
