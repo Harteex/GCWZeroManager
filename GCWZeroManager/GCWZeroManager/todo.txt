@@ -1,16 +1,15 @@
 
 *** MAIN WINDOW / GENERAL ***
-* Disconnect on man byter active connection! (also kill current passphrase??)
 * First time you click on Add OPKs or upload file, inform about dragndrop
 * Krashar om man försöker överföra filer som flyttats / tagits bort
 * Move all (most?) connection usage to its own thread, with a queue. If not all, make sure to guard with locks... then handle things asynchronously in the GUI.
 * Icon indicating if connected or not
 * Automatically load some data for example initial directory in Files if connected
 * Get rid of bool return statuses, use more exceptions. Create or find exception for not connected.
-* Transfer window title
 * Instructions on the add connection wizard should say it's safe to turn off password login in the network app
 * SYSTEM INFO: Add running processes
 * When browsing for ssh keys, default key browse dir in appdata
+* New icon, this one kinda sucks
 
 
 *** INSTALL SOFTWARE ***
