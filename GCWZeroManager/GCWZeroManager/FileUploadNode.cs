@@ -5,11 +5,10 @@ using System.Text;
 
 namespace GCWZeroManager
 {
-    public class OPKFile
+    public class FileUploadNode
     {
-        public string LocalPath { get; set; }
+        public string Path { get; set; }
         public string Filename { get; set; }
-        public string Title { get; set; }
         public SizeElement Size { get; set; }
     }
 }

@@ -25,22 +25,55 @@ namespace GCWZeroManager
     /// </summary>
     public partial class TransferProgressWindow : Window
     {
+        struct WorkerThreadArgs
+        {
+            public List<string> existingFiles;
+            public string remotePath;
+        }
+
         BackgroundWorker workerThread;
-        List<OPKFile> files;
+        List<FileUploadNode> uploadFiles;
         long totalBytes;
         ScpClient scp = null;
+
+        string errorMessage = "Unknown error";
+        public string ErrorMessage
+        {
+            get { return errorMessage; }
+        }
 
         public TransferProgressWindow()
         {
             InitializeComponent();
         }
 
-        public void UploadFiles(List<OPKFile> files, ConnectionInfo cInfo)
+        public void UploadFiles(List<OPKFile> files, string remotePath)
         {
-            this.files = files;
+            List<FileUploadNode> fileNodes = new List<FileUploadNode>();
+
+            foreach (OPKFile opk in files)
+            {
+                FileUploadNode fileUploadNode = new FileUploadNode();
+                fileUploadNode.Filename = opk.Filename;
+                fileUploadNode.Path = opk.LocalPath;
+                fileUploadNode.Size = opk.Size;
+            }
+
+            UploadFiles(fileNodes, remotePath);
+        }
+
+        public void UploadFiles(List<FileUploadNode> files, string remotePath)
+        {
+            if (files.Count == 0)
+            {
+                MessageBox.Show("No files to upload", "No files", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            this.uploadFiles = files;
 
             totalBytes = 0;
-            foreach (OPKFile f in files)
+            foreach (FileUploadNode f in files)
             {
                 totalBytes += f.Size.Bytes;
             }
@@ -49,6 +82,28 @@ namespace GCWZeroManager
             labelTotalFilesData.Content = files.Count;
             labelFilesRemainingData.Content = files.Count;
 
+            if (!ConnectionManager.Instance.Connected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            SftpClient sftp = ConnectionManager.Instance.GetActiveSftpConnection();
+
+            List<string> fileList = new List<string>();
+            foreach (SftpFile file in sftp.ListDirectory(remotePath))
+            {
+                if (file.IsRegularFile)
+                    fileList.Add(file.Name);
+            }
+
+            WorkerThreadArgs args = new WorkerThreadArgs();
+            args.existingFiles = fileList;
+            args.remotePath = remotePath;
+
             // Start thread (backgroundworker) which does the transfer and updates the progress
             workerThread = new BackgroundWorker();
             workerThread.DoWork += new DoWorkEventHandler(workerThread_DoWork);
@@ -56,7 +111,7 @@ namespace GCWZeroManager
             workerThread.ProgressChanged += OnProgressChanged;
             workerThread.WorkerReportsProgress = true;
             workerThread.WorkerSupportsCancellation = true;
-            workerThread.RunWorkerAsync(cInfo);
+            workerThread.RunWorkerAsync(args);
         }
 
         private void workerThread_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -73,6 +128,8 @@ namespace GCWZeroManager
             if (wArgs.Scp != null && wArgs.Scp.IsConnected)
                 wArgs.Scp.Disconnect();
 
+            errorMessage = wArgs.ErrorMsg;
+
             if (this.IsVisible)
                 DialogResult = wArgs.Result;
         }
@@ -81,38 +138,21 @@ namespace GCWZeroManager
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            ConnectionInfo cInfo = (ConnectionInfo)e.Argument;
-
-            if (!ConnectionManager.Instance.Connected)
-            {
-                if (!ConnectionManager.Instance.Connect())
-                {
-                    MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    e.Result = new WorkerCompletedArgs(null, false, "Connection Failed!");
-                    return;
-                }
-            }
-
-            SftpClient sftp = ConnectionManager.Instance.GetActiveSftpConnection();
+            WorkerThreadArgs args = (WorkerThreadArgs)e.Argument;
+            List<string> fileList = args.existingFiles;
+            string remotePath = args.remotePath;
 
             ProgressState progress = new ProgressState();
             progress.CurFileProgressPercent = 0;
-            progress.FilesRemaining = files.Count;
+            progress.FilesRemaining = uploadFiles.Count;
             progress.Status = "Transferring...";
 
             long bytesLeft = totalBytes;
 
-            List<string> fileList = new List<string>();
-            foreach (SftpFile file in sftp.ListDirectory(ConnectionManager.Instance.OPKDir))
-            {
-                if (file.IsRegularFile)
-                    fileList.Add(file.Name);
-            }
 
             workerThread.ReportProgress(0, progress);
 
-            scp = ConnectionManager.Instance.ConnectSCP(cInfo);
+            scp = ConnectionManager.Instance.ConnectWithActiveConnectionSCP();
 
             if (scp == null || !scp.IsConnected)
             {
@@ -122,7 +162,7 @@ namespace GCWZeroManager
                 return;
             }
 
-            foreach (OPKFile opk in files)
+            foreach (FileUploadNode fileUploadNode in uploadFiles)
             {
                 if (worker.CancellationPending)
                 {
@@ -131,13 +171,13 @@ namespace GCWZeroManager
                     return;
                 }
 
-                if (fileList.Contains(opk.Filename))
+                if (fileList.Contains(fileUploadNode.Filename))
                 {
-                    MessageBoxResult result = MessageBox.Show("File " + opk.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result == MessageBoxResult.No)
                     {
                         progress.FilesRemaining--;
-                        bytesLeft -= opk.Size.Bytes;
+                        bytesLeft -= fileUploadNode.Size.Bytes;
                         continue;
                     }
                 }
@@ -156,8 +196,8 @@ namespace GCWZeroManager
                     scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate(object _sender, ScpUploadEventArgs _e)
                         {
                             //
-                            progress.CurFileProgressPercent = (int)((_e.Uploaded * 100) / _e.Size);
-                            totalPercent = 100 - (int)(((bytesLeft - _e.Uploaded) * 100) / totalBytes);
+                            progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Uploaded * 100) / _e.Size);
+                            totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Uploaded) * 100) / totalBytes));
                             workerThread.ReportProgress(totalPercent, progress);
                         });
 
@@ -169,16 +209,14 @@ namespace GCWZeroManager
 
                             errorHandled = true;
                             // Try to clean up
-                            List<OPKFile> tempList = new List<OPKFile>();
-                            tempList.Add(opk);
-                            ConnectionManager.Instance.DeleteFiles(tempList);
+                            ConnectionManager.Instance.DeleteFile(System.IO.Path.Combine(remotePath, fileUploadNode.Filename));
                         });
 
-                    scp.Upload(new FileInfo(opk.Path), ConnectionManager.Instance.OPKDir);
+                    scp.Upload(new FileInfo(fileUploadNode.Path), remotePath);
 
                     progress.FilesRemaining--;
-                    bytesLeft -= opk.Size.Bytes;
-                    totalPercent = 100 - (int)((bytesLeft * 100) / totalBytes);
+                    bytesLeft -= fileUploadNode.Size.Bytes;
+                    totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
                     workerThread.ReportProgress(totalPercent, progress);
                 }
                 catch (ScpException se)
@@ -201,6 +239,11 @@ namespace GCWZeroManager
                         e.Result = new WorkerCompletedArgs(scp, false, "Error");
                         return;
                     }
+                }
+                catch (SshOperationTimeoutException se)
+                {
+                    e.Result = new WorkerCompletedArgs(scp, false, "Error: " + se.Message);
+                    return;
                 }
                 catch (SshConnectionException se)
                 {

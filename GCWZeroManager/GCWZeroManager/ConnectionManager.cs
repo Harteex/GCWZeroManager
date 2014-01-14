@@ -41,6 +41,9 @@ namespace GCWZeroManager
         private string passphrase = "";
         private bool passphraseOk = false;
 
+        private TimeSpan connectingTimeout = new TimeSpan(0, 0, 10);
+        private TimeSpan operationTimeout = new TimeSpan(0, 0, 8);
+
         public void AddConnection(ConnectionNode cn)
         {
             connections.AddConnection(cn);
@@ -214,6 +217,62 @@ namespace GCWZeroManager
             return true;
         }
 
+        public bool DeleteFile(string path)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            activeSftp.DeleteFile(path);
+            return true;
+        }
+
+        public bool DeleteDirectory(string path)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            activeSftp.DeleteDirectory(path);
+            return true;
+        }
+
+        public bool DeleteFiles(List<OPKFile> filesToDelete)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            foreach (OPKFile file in filesToDelete)
+            {
+                activeSftp.DeleteFile(opkDir + file.Filename);
+            }
+
+            return true;
+        }
+
+        public bool DeleteFiles(List<string> paths)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            foreach (string path in paths)
+            {
+                activeSftp.DeleteFile(path);
+            }
+
+            return true;
+        }
+
+        public bool DeleteDirectories(List<string> paths)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            foreach (string path in paths)
+            {
+                activeSftp.DeleteDirectory(path);
+            }
+
+            return true;
+        }
 
 
 
@@ -311,7 +370,9 @@ namespace GCWZeroManager
             if (connectionInfo == null)
                 return null;
 
+            connectionInfo.Timeout = connectingTimeout;
             SftpClient sftp = new SftpClient(connectionInfo);
+            sftp.OperationTimeout = operationTimeout;
             sftp.BufferSize = 8192;
 
             try
@@ -336,6 +397,7 @@ namespace GCWZeroManager
             if (connectionInfo == null)
                 return null;
 
+            connectionInfo.Timeout = connectingTimeout;
             SshClient ssh = new SshClient(connectionInfo);
 
             try
@@ -444,22 +506,6 @@ namespace GCWZeroManager
             return list;
         }
 
-        public bool DeleteFiles(List<OPKFile> filesToDelete)
-        {
-            SftpClient sftp = ConnectWithActiveConnectionSFTP();
-            if (sftp == null || !sftp.IsConnected)
-                return false;
-
-            foreach (OPKFile file in filesToDelete)
-            {
-                sftp.DeleteFile(opkDir + file.Filename);
-            }
-
-            sftp.Disconnect();
-
-            return true;
-        }
-
         public bool UploadFiles(List<OPKFile> filesToUpload)
         {
             SftpClient sftp = ConnectWithActiveConnectionSFTP();
@@ -481,14 +527,14 @@ namespace GCWZeroManager
                         continue;
                 }
 
-                Stream fs = File.OpenRead(opk.Path);
+                Stream fs = File.OpenRead(opk.LocalPath);
 
                 try
                 {
                     string tempFilename = opkDir + opk.Filename;
                     //scp.Upload(fs, tempFilename);
                     scp.Uploading += new EventHandler<ScpUploadEventArgs>(scp_Uploading);
-                    scp.Upload(new FileInfo(opk.Path), opkDir);
+                    scp.Upload(new FileInfo(opk.LocalPath), opkDir);
                 }
                 catch (SshException se)
                 {

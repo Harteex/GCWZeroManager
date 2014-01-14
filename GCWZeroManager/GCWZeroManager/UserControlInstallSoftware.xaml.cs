@@ -39,7 +39,7 @@ namespace GCWZeroManager
         {
             OPKFile opk = new OPKFile()
             {
-                Path = path,
+                LocalPath = path,
                 Filename = System.IO.Path.GetFileName(path),
                 Title = System.IO.Path.GetFileName(path),
                 Size = new SizeElement(size)
@@ -121,7 +121,7 @@ namespace GCWZeroManager
             //ConnectionManager.Instance.UploadFiles(opkFiles);
 
             TransferProgressWindow transferWindow = new TransferProgressWindow();
-            transferWindow.UploadFiles(opkFiles, cInfo);
+            transferWindow.UploadFiles(opkFiles, ConnectionManager.Instance.OPKDir);
             Nullable<bool> result = transferWindow.ShowDialog();
 
             if (result.HasValue && result.Value)

@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using Renci.SshNet.Common;
+using System.IO;
 
 namespace GCWZeroManager
 {
@@ -46,39 +48,92 @@ namespace GCWZeroManager
                 }
             }
 
-            files.Clear();
-            List<FileNode> tempList = ConnectionManager.Instance.ListFiles(textBoxPath.Text); // FIXME Handle SftpPathNotFoundException!!!
-            if (tempList == null)
+            try
             {
-                MessageBox.Show("File listing failed!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            else
-            {
-                foreach (FileNode file in tempList)
+                List<FileNode> tempList = ConnectionManager.Instance.ListFiles(textBoxPath.Text);
+                if (tempList == null)
                 {
-                    files.Add(file);
+                    MessageBox.Show("File listing failed!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else
+                {
+                    files.Clear();
+                    foreach (FileNode file in tempList)
+                    {
+                        files.Add(file);
+                    }
+                    lastOkPath = textBoxPath.Text;
+                }
+            }
+            catch (SftpPathNotFoundException)
+            {
+                if (textBoxPath.Text == lastOkPath)
+                {
+                    MessageBox.Show("File listing failed!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Could not open directory!", "Listing failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    textBoxPath.Text = lastOkPath;
                 }
             }
 
             ((ListCollectionView)this.gridFileList.ItemsSource).Refresh();
-
-            lastOkPath = textBoxPath.Text;
         }
 
         private void gridFileList_DragEnter(object sender, DragEventArgs e)
         {
-
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
+                e.Effects = DragDropEffects.All;
+            else
+                e.Effects = DragDropEffects.None;
+            e.Handled = true; 
         }
 
         private void gridFileList_DragOver(object sender, DragEventArgs e)
         {
-
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, true))
+                e.Effects = DragDropEffects.All;
+            else
+                e.Effects = DragDropEffects.None;
+            e.Handled = true; 
         }
 
         private void gridFileList_Drop(object sender, DragEventArgs e)
         {
+            string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop, true);
+            List<FileUploadNode> filesToUpload = new List<FileUploadNode>();
+            foreach (string path in paths)
+            {
+                FileInfo fi = new FileInfo(path);
+                if (!fi.Exists)
+                {
+                    MessageBox.Show("Error: " + fi.Name + " is a directory or the file doesn't exist.", "Cannot Upload", MessageBoxButton.OK, MessageBoxImage.Stop);
+                    e.Handled = true;
+                    return;
+                }
+                FileUploadNode fileUploadNode = new FileUploadNode();
+                fileUploadNode.Path = path;
+                fileUploadNode.Filename = System.IO.Path.GetFileName(path);
+                fileUploadNode.Size = new SizeElement(fi.Length);
 
+                filesToUpload.Add(fileUploadNode);
+
+
+            }
+
+            TransferProgressWindow transferWindow = new TransferProgressWindow();
+            transferWindow.UploadFiles(filesToUpload, textBoxPath.Text);
+            Nullable<bool> result = transferWindow.ShowDialog();
+
+            if (!result.HasValue || !result.Value)
+            {
+                MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            UpdateList(); // FIXME don't do this if we were disconnected!!
+            e.Handled = true;
         }
 
         private void buttonHome_Click(object sender, RoutedEventArgs e)
@@ -104,7 +159,55 @@ namespace GCWZeroManager
 
         private void buttonDelete_Click(object sender, RoutedEventArgs e)
         {
+            if (gridFileList.SelectedIndex == -1)
+            {
+                MessageBox.Show("No files selected - nothing to delete", "No files selected", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
 
+            List<string> selectedFiles = new List<string>();
+            List<string> selectedDirectories = new List<string>();
+            string selectedString = "";
+
+            foreach (Object o in gridFileList.SelectedItems)
+            {
+                FileNode fileNode = (FileNode)o;
+                if (fileNode.FileType == FileType.RegularFile)
+                    selectedFiles.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename));
+                else if (fileNode.FileType == FileType.Directory)
+                    selectedDirectories.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename));
+                else
+                {
+                    MessageBox.Show("Cannot delete " + fileNode.Filename + ".", "Cannot delete", MessageBoxButton.OK, MessageBoxImage.Stop);
+                    return;
+                }
+
+                selectedString += fileNode.Filename + "\n";
+            }
+
+            MessageBoxResult result = MessageBox.Show("Are you sure you want to delete the following files and/or directories?\n\n" + selectedString, "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    ConnectionManager.Instance.DeleteFiles(selectedFiles);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                try
+                {
+                    ConnectionManager.Instance.DeleteDirectories(selectedDirectories);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Delete failed: " + ex.Message + ". Make sure the directory is empty.", "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                UpdateList();
+            }
         }
 
         private void buttonNewFolder_Click(object sender, RoutedEventArgs e)
@@ -135,7 +238,7 @@ namespace GCWZeroManager
             if (file == null)
                 return;
 
-            if (file.FileType == FileType.Directory || file.FileType == FileType.SymLink) // FIXME not all symlinks can be followed I guess.......?
+            if (file.FileType == FileType.Directory || file.FileType == FileType.SymLink) // FIXME How to differentiate folder symlinks and file symlinks?
             {
                 textBoxPath.Text += file.Filename + "/";
                 UpdateList();
