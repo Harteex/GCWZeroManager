@@ -100,7 +100,10 @@ namespace GCWZeroManager
 
         private void buttonBrowseKey_Click(object sender, RoutedEventArgs e)
         {
+            string keyDir = System.IO.Path.GetDirectoryName(textBoxKeys.Text);
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (Directory.Exists(keyDir))
+                openFileDialog.InitialDirectory = keyDir;
             Nullable<bool> result = openFileDialog.ShowDialog();
 
             if (result.HasValue && result.Value)

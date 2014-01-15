@@ -280,7 +280,10 @@ namespace GCWZeroManager
 
         private void buttonBrowsePublicKey_Click(object sender, RoutedEventArgs e)
         {
+            string dir = ConfigurationManager.Instance.GetSaveFilePath();
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (Directory.Exists(dir))
+                openFileDialog.InitialDirectory = dir;
             Nullable<bool> result = openFileDialog.ShowDialog();
 
             if (result.HasValue && result.Value)
@@ -291,7 +294,10 @@ namespace GCWZeroManager
 
         private void buttonBrowsePrivateKey_Click(object sender, RoutedEventArgs e)
         {
+            string dir = ConfigurationManager.Instance.GetSaveFilePath();
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (Directory.Exists(dir))
+                openFileDialog.InitialDirectory = dir;
             Nullable<bool> result = openFileDialog.ShowDialog();
 
             if (result.HasValue && result.Value)
@@ -302,8 +308,10 @@ namespace GCWZeroManager
 
         private void buttonBrowseKeyNoInstall_Click(object sender, RoutedEventArgs e)
         {
+            string dir = ConfigurationManager.Instance.GetSaveFilePath();
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = ConfigurationManager.Instance.GetSaveFilePath();
+            if (Directory.Exists(dir))
+                openFileDialog.InitialDirectory = dir;
             Nullable<bool> result = openFileDialog.ShowDialog();
 
             if (result.HasValue && result.Value)

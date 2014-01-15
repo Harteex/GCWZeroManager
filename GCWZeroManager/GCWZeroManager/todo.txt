@@ -7,7 +7,6 @@
 * Automatically load some data for example initial directory in Files if connected
 * Get rid of bool return statuses, use more exceptions. Create or find exception for not connected.
 * Instructions on the add connection wizard should say it's safe to turn off password login in the network app
-* When browsing for ssh keys, default key browse dir in appdata
 * New icon, this one kinda sucks
 
 
