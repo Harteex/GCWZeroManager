@@ -217,6 +217,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ssh-keygen.exe" />
     <Resource Include="todo.txt" />
     <Resource Include="Resources\Icons\icon-folder.png" />
     <Resource Include="Resources\Icons\icon-audio.png" />
@@ -226,6 +227,9 @@
     <Resource Include="Resources\Icons\icon-text.png" />
     <Resource Include="License-Oxygen-Icons.txt" />
     <Resource Include="License.txt" />
+    <Content Include="msys-1.0.dll" />
+    <Content Include="msys-crypto-0.9.8.dll" />
+    <Content Include="msys-minires.dll" />
     <Content Include="Renci.SshNet.dll" />
     <Resource Include="Resources\Toolbar\toolbar-go-home.png" />
     <Resource Include="Resources\Toolbar\toolbar-delete.png" />
