@@ -227,6 +227,8 @@
     <Resource Include="Resources\Icons\icon-folder-symlink.png" />
     <Resource Include="Resources\Icons\icon-image.png" />
     <Resource Include="Resources\Icons\icon-text.png" />
+    <Resource Include="License-Oxygen-Icons.txt" />
+    <Resource Include="License.txt" />
     <Content Include="Renci.SshNet.dll" />
     <Resource Include="Resources\Toolbar\toolbar-go-home.png" />
     <Resource Include="Resources\Toolbar\toolbar-delete.png" />
