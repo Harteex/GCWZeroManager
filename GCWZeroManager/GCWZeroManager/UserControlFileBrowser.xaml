@@ -7,6 +7,14 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="LightGray">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Name="menuItemRefresh" Header="Refresh" Click="menuItemRefresh_Click" />
+                    <MenuItem Name="menuItemNewFolder" Header="New Folder" Click="menuItemNewFolder_Click" />
+                    <MenuItem Name="menuItemDownload" Header="Download" Click="menuItemDownload_Click" />
+                    <MenuItem Name="menuItemDelete" Header="Delete" Click="menuItemDelete_Click" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
                     <Setter Property="Control.BorderThickness" Value="0" />

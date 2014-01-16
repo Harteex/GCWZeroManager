@@ -175,6 +175,16 @@ namespace GCWZeroManager
 
         private void buttonDelete_Click(object sender, RoutedEventArgs e)
         {
+            DoDelete();
+        }
+
+        private void buttonNewFolder_Click(object sender, RoutedEventArgs e)
+        {
+            DoCreateNewFolder();
+        }
+
+        private void DoDelete()
+        {
             if (gridFileList.SelectedIndex == -1)
             {
                 MessageBox.Show("No files selected - nothing to delete", "No files selected", MessageBoxButton.OK, MessageBoxImage.Stop);
@@ -237,7 +247,7 @@ namespace GCWZeroManager
             }
         }
 
-        private void buttonNewFolder_Click(object sender, RoutedEventArgs e)
+        private void DoCreateNewFolder()
         {
             TextInputDialog input = new TextInputDialog("New Folder", "Enter a name for the new folder", "Name:");
             input.ShowDialog();
@@ -277,7 +287,7 @@ namespace GCWZeroManager
             }
         }
 
-        private void buttonDownload_Click(object sender, RoutedEventArgs e)
+        private void DoDownload()
         {
             if (gridFileList.SelectedIndex == -1)
             {
@@ -331,7 +341,7 @@ namespace GCWZeroManager
             }
         }
 
-        private void buttonUpload_Click(object sender, RoutedEventArgs e)
+        private void DoUpload()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
@@ -370,6 +380,36 @@ namespace GCWZeroManager
                     UpdateList();
                 }
             }
+        }
+
+        private void buttonDownload_Click(object sender, RoutedEventArgs e)
+        {
+            DoDownload();
+        }
+
+        private void buttonUpload_Click(object sender, RoutedEventArgs e)
+        {
+            DoUpload();
+        }
+
+        private void menuItemRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateList();
+        }
+
+        private void menuItemNewFolder_Click(object sender, RoutedEventArgs e)
+        {
+            DoCreateNewFolder();
+        }
+
+        private void menuItemDownload_Click(object sender, RoutedEventArgs e)
+        {
+            DoDownload();
+        }
+
+        private void menuItemDelete_Click(object sender, RoutedEventArgs e)
+        {
+            DoDelete();
         }
     }
 }
