@@ -5,7 +5,8 @@
     <Grid>
         <ComboBox Height="23" HorizontalAlignment="Stretch" Margin="5,12,5,0" Name="comboBox1" VerticalAlignment="Top" Width="Auto" ItemsSource="{Binding}" SelectedIndex="0" SelectionChanged="comboBox1_SelectionChanged">
             <ComboBoxItem Content="Code" />
-            <ComboBoxItem Content="Graphics:" />
+            <ComboBoxItem Content="Graphics" />
+            <ComboBoxItem Content="Ookii Dialogs" />
         </ComboBox>
         <TextBox Height="Auto" HorizontalAlignment="Stretch" Margin="5,38,5,5" Name="textBox1" VerticalAlignment="Stretch" Width="Auto" TextWrapping="WrapWithOverflow" VerticalScrollBarVisibility="Auto" IsReadOnly="True" />
     </Grid>

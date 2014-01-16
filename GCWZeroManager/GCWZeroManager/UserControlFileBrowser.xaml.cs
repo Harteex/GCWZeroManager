@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using System.ComponentModel;
 using Renci.SshNet.Common;
 using System.IO;
+using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 
 namespace GCWZeroManager
 {
@@ -109,7 +111,7 @@ namespace GCWZeroManager
         private void gridFileList_Drop(object sender, DragEventArgs e)
         {
             string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-            List<FileUploadNode> filesToUpload = new List<FileUploadNode>();
+            List<FileUploadDownloadNode> filesToUpload = new List<FileUploadDownloadNode>();
             foreach (string path in paths)
             {
                 FileInfo fi = new FileInfo(path);
@@ -119,7 +121,7 @@ namespace GCWZeroManager
                     e.Handled = true;
                     return;
                 }
-                FileUploadNode fileUploadNode = new FileUploadNode();
+                FileUploadDownloadNode fileUploadNode = new FileUploadDownloadNode();
                 fileUploadNode.Path = path;
                 fileUploadNode.Filename = System.IO.Path.GetFileName(path);
                 fileUploadNode.Size = new SizeElement(fi.Length);
@@ -272,6 +274,101 @@ namespace GCWZeroManager
             {
                 textBoxPath.Text += file.Filename + "/";
                 UpdateList();
+            }
+        }
+
+        private void buttonDownload_Click(object sender, RoutedEventArgs e)
+        {
+            if (gridFileList.SelectedIndex == -1)
+            {
+                MessageBox.Show("No files were selected - nothing to download", "No files selected", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            List<FileUploadDownloadNode> selectedFiles = new List<FileUploadDownloadNode>();
+
+            foreach (Object o in gridFileList.SelectedItems)
+            {
+                FileNode fileNode = (FileNode)o;
+                if (fileNode.FileType == FileType.RegularFile)
+                {
+                    FileUploadDownloadNode fileUpload = new FileUploadDownloadNode();
+                    fileUpload.Filename = fileNode.Filename;
+                    fileUpload.Size = fileNode.Size;
+                    fileUpload.Path = System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename);
+                    selectedFiles.Add(fileUpload);
+                }
+                else
+                {
+                    MessageBox.Show("Cannot download " + fileNode.Filename + ". Only regular files can be downloaded.", "Cannot download", MessageBoxButton.OK, MessageBoxImage.Stop);
+                    return;
+                }
+            }
+
+            VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
+
+            Nullable<bool> result = folderBrowser.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                TransferProgressWindow transferWindow = new TransferProgressWindow();
+                transferWindow.DownloadFiles(selectedFiles, folderBrowser.SelectedPath);
+                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+
+                if (resultTransfer.HasValue && resultTransfer.Value)
+                {
+                    //
+                }
+                else
+                {
+                    MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                if (transferWindow.IsConnectionError)
+                {
+                    ConnectionManager.Instance.Disconnect(true);
+                }
+            }
+        }
+
+        private void buttonUpload_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
+
+            Nullable<bool> result = openFileDialog.ShowDialog();
+
+            List<FileUploadDownloadNode> filesToUpload = new List<FileUploadDownloadNode>();
+            if (result.HasValue && result.Value)
+            {
+                foreach (string filename in openFileDialog.FileNames)
+                {
+                    FileInfo fi = new FileInfo(filename);
+                    FileUploadDownloadNode fileUpload = new FileUploadDownloadNode();
+                    fileUpload.Filename = System.IO.Path.GetFileName(filename);
+                    fileUpload.Path = filename;
+                    fileUpload.Size = new SizeElement(fi.Length);
+
+                    filesToUpload.Add(fileUpload);
+                }
+
+                TransferProgressWindow transferWindow = new TransferProgressWindow();
+                transferWindow.UploadFiles(filesToUpload, textBoxPath.Text);
+                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+
+                if (!resultTransfer.HasValue || !resultTransfer.Value)
+                {
+                    MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                if (transferWindow.IsConnectionError)
+                {
+                    ConnectionManager.Instance.Disconnect(true);
+                }
+                else
+                {
+                    UpdateList();
+                }
             }
         }
     }

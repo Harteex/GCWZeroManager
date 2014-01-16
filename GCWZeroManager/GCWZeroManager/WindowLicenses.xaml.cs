@@ -20,13 +20,14 @@ namespace GCWZeroManager
     /// </summary>
     public partial class WindowLicenses : Window
     {
-        private string[] licenseText = new string[2];
+        private string[] licenseText = new string[3];
         public WindowLicenses()
         {
             InitializeComponent();
 
             licenseText[0] = GetLicenseText("License.txt");
             licenseText[1] = GetLicenseText("License-Oxygen-Icons.txt");
+            licenseText[2] = GetLicenseText("License-Ookii-Dialogs.txt");
 
             textBox1.Text = licenseText[comboBox1.SelectedIndex];
         }

@@ -35,22 +35,27 @@ namespace GCWZeroManager
         public void ChangeImage(ConnectionState state)
         {
             string imageName = "";
+            string tooltip = "";
             switch (state)
             {
                 case ConnectionState.Connected:
                     imageName = "connection-online16.png";
+                    tooltip = "Connected";
                     break;
                 case ConnectionState.DisconnectedNormal:
                     imageName = "connection-offline16.png";
+                    tooltip = "Offline";
                     break;
                 case ConnectionState.DisconnectedError:
                     imageName = "connection-error16.png";
+                    tooltip = "Connection Error";
                     break;
                 default:
                     return;
             }
 
             image1.Source = new BitmapImage(new Uri(String.Format("pack://application:,,,/Resources/ConnectionIcons/{0}", imageName)));
+            image1.ToolTip = tooltip;
         }
     }
 }

@@ -3,12 +3,10 @@
 * First time you click on Add OPKs or upload file, inform about dragndrop
 * Krashar om man försöker överföra filer som flyttats / tagits bort
 * Move all (most?) connection usage to its own thread, with a queue. If not all, make sure to guard with locks... then handle things asynchronously in the GUI.
-* Icon indicating if connected or not
-* Automatically load some data for example initial directory in Files if connected
+* Automatically load some data for example initial directory in Files if connected?
 * Get rid of bool return statuses, use more exceptions. Create or find exception for not connected.
 * Instructions on the add connection wizard should say it's safe to turn off password login in the network app
 * New icon, this one kinda sucks
-* Fixa året om man högerklickar och tar info på exe-filen
 * Some notice about known bugs????
 
 
@@ -17,20 +15,19 @@
 
 
 *** MANAGE SOFTWARE ***
-* Allow user to download OPK files from manage apps
 * Display title correctly (also, icon?)
 
 
 *** FILES ***
 * Sortera alltid mapparna längst upp på name...
-* Toolbar icons for upload/download aswell..
 * Gör det möjligt att skriva in path själv
 * Stödj path utan avslutande /
-* Allow user to download files
 * Allow delete with delete key
 
 
 *** NEW FEATURES ***
+
+* Set file permissions?
 
 * SSDP
 Find GCW Zero automatically, instead of having to enter an IP / Host

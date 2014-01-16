@@ -17,6 +17,7 @@ using System.IO;
 using Renci.SshNet.Common;
 using System.Threading;
 using System.Net.Sockets;
+using System.Timers;
 
 namespace GCWZeroManager
 {
@@ -25,16 +26,22 @@ namespace GCWZeroManager
     /// </summary>
     public partial class TransferProgressWindow : Window
     {
-        struct WorkerThreadArgs
+        struct WorkerThreadArgsUpload
         {
             public List<string> existingFiles;
             public string remotePath;
         }
 
+        struct WorkerThreadArgsDownload
+        {
+            public string localPath;
+        }
+
         BackgroundWorker workerThread;
-        List<FileUploadNode> uploadFiles;
+        List<FileUploadDownloadNode> uploadFiles;
         long totalBytes;
         ScpClient scp = null;
+        bool okToUpdate = false;
 
         string errorMessage = "Unknown error";
         public string ErrorMessage
@@ -55,11 +62,11 @@ namespace GCWZeroManager
 
         public void UploadFiles(List<OPKFile> files, string remotePath)
         {
-            List<FileUploadNode> fileNodes = new List<FileUploadNode>();
+            List<FileUploadDownloadNode> fileNodes = new List<FileUploadDownloadNode>();
 
             foreach (OPKFile opk in files)
             {
-                FileUploadNode fileUploadNode = new FileUploadNode();
+                FileUploadDownloadNode fileUploadNode = new FileUploadDownloadNode();
                 fileUploadNode.Filename = opk.Filename;
                 fileUploadNode.Path = opk.LocalPath;
                 fileUploadNode.Size = opk.Size;
@@ -70,7 +77,7 @@ namespace GCWZeroManager
             UploadFiles(fileNodes, remotePath);
         }
 
-        public void UploadFiles(List<FileUploadNode> files, string remotePath)
+        public void UploadFiles(List<FileUploadDownloadNode> files, string remotePath)
         {
             if (files.Count == 0)
             {
@@ -81,7 +88,7 @@ namespace GCWZeroManager
             this.uploadFiles = files;
 
             totalBytes = 0;
-            foreach (FileUploadNode f in files)
+            foreach (FileUploadDownloadNode f in files)
             {
                 totalBytes += f.Size.Bytes;
             }
@@ -108,7 +115,7 @@ namespace GCWZeroManager
                     fileList.Add(file.Name);
             }
 
-            WorkerThreadArgs args = new WorkerThreadArgs();
+            WorkerThreadArgsUpload args = new WorkerThreadArgsUpload();
             args.existingFiles = fileList;
             args.remotePath = remotePath;
 
@@ -120,6 +127,53 @@ namespace GCWZeroManager
             workerThread.WorkerReportsProgress = true;
             workerThread.WorkerSupportsCancellation = true;
             workerThread.RunWorkerAsync(args);
+        }
+
+        public void DownloadFiles(List<FileUploadDownloadNode> files, string localPath)
+        {
+            if (files.Count == 0)
+            {
+                MessageBox.Show("No files to download", "No files", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            this.uploadFiles = files;
+
+            totalBytes = 0;
+            foreach (FileUploadDownloadNode f in files)
+            {
+                totalBytes += f.Size.Bytes;
+            }
+
+            labelTotalBytesData.Content = HelperTools.GetFormattedSize(totalBytes);
+            labelTotalFilesData.Content = files.Count;
+            labelFilesRemainingData.Content = files.Count;
+
+            if (!ConnectionManager.Instance.IsConnected)
+            {
+                if (!ConnectionManager.Instance.Connect())
+                {
+                    MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            WorkerThreadArgsDownload args = new WorkerThreadArgsDownload();
+            args.localPath = localPath;
+
+            // Start thread (backgroundworker) which does the transfer and updates the progress
+            workerThread = new BackgroundWorker();
+            workerThread.DoWork += new DoWorkEventHandler(workerThread_DoWork);
+            workerThread.RunWorkerCompleted += new RunWorkerCompletedEventHandler(workerThread_RunWorkerCompleted);
+            workerThread.ProgressChanged += OnProgressChanged;
+            workerThread.WorkerReportsProgress = true;
+            workerThread.WorkerSupportsCancellation = true;
+            workerThread.RunWorkerAsync(args);
+        }
+
+        private void OnUpdateTimer(object source, ElapsedEventArgs e)
+        {
+            okToUpdate = true;
         }
 
         private void workerThread_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -139,7 +193,7 @@ namespace GCWZeroManager
                 wArgs.Scp.Disconnect();
 
             errorMessage = wArgs.ErrorMsg;
-            connectionError = !wArgs.Result;
+            connectionError = wArgs.ConnectionError;
 
             if (this.IsVisible)
                 DialogResult = wArgs.Result;
@@ -149,17 +203,12 @@ namespace GCWZeroManager
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            WorkerThreadArgs args = (WorkerThreadArgs)e.Argument;
-            List<string> fileList = args.existingFiles;
-            string remotePath = args.remotePath;
-
             ProgressState progress = new ProgressState();
             progress.CurFileProgressPercent = 0;
             progress.FilesRemaining = uploadFiles.Count;
             progress.Status = "Transferring...";
 
             long bytesLeft = totalBytes;
-
 
             workerThread.ReportProgress(0, progress);
 
@@ -173,99 +222,238 @@ namespace GCWZeroManager
                 return;
             }
 
-            foreach (FileUploadNode fileUploadNode in uploadFiles)
+            System.Timers.Timer updateTimer = new System.Timers.Timer();
+            updateTimer.Elapsed += OnUpdateTimer;
+            updateTimer.Interval = 20;
+            updateTimer.Enabled = true;
+
+            if (e.Argument is WorkerThreadArgsUpload)
             {
-                if (worker.CancellationPending)
+                WorkerThreadArgsUpload args = (WorkerThreadArgsUpload)e.Argument;
+                List<string> fileList = args.existingFiles;
+                string remotePath = args.remotePath;
+
+                foreach (FileUploadDownloadNode fileUploadNode in uploadFiles)
                 {
-                    e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                    e.Cancel = true;
-                    return;
-                }
-
-                if (fileList.Contains(fileUploadNode.Filename))
-                {
-                    MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (result == MessageBoxResult.No)
-                    {
-                        progress.FilesRemaining--;
-                        bytesLeft -= fileUploadNode.Size.Bytes;
-                        continue;
-                    }
-                }
-
-                if (worker.CancellationPending)
-                {
-                    e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                    e.Cancel = true;
-                    return;
-                }
-
-                try
-                {
-                    int totalPercent;
-
-                    scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate(object _sender, ScpUploadEventArgs _e)
-                        {
-                            //
-                            progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Uploaded * 100) / _e.Size);
-                            totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Uploaded) * 100) / totalBytes));
-                            workerThread.ReportProgress(totalPercent, progress);
-                        });
-
-                    bool errorHandled = false;
-                    scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate(object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
-                        {
-                            if (errorHandled) // FIXME maybe do locking, and later on waiting for this operation to finish... also check that deletefiles doesn't throw any exception (if it doesn't exist)
-                                return;
-
-                            errorHandled = true;
-                            // Try to clean up
-                            ConnectionManager.Instance.DeleteFile(System.IO.Path.Combine(remotePath, fileUploadNode.Filename));
-                        });
-
-                    scp.Upload(new FileInfo(fileUploadNode.Path), remotePath);
-
-                    progress.FilesRemaining--;
-                    bytesLeft -= fileUploadNode.Size.Bytes;
-                    totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
-                    workerThread.ReportProgress(totalPercent, progress);
-                }
-                catch (ScpException se)
-                {
-                    MessageBox.Show("Error: " + se.Message);
-                    e.Result = new WorkerCompletedArgs(scp, false, se.Message);
-                    return;
-                }
-                catch (SocketException se)
-                {
-                    // Was this due to a cancellation?
                     if (worker.CancellationPending)
                     {
                         e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
                         e.Cancel = true;
+                        updateTimer.Stop();
                         return;
                     }
-                    else
+
+                    if (fileList.Contains(fileUploadNode.Filename))
+                    {
+                        MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result == MessageBoxResult.No)
+                        {
+                            progress.FilesRemaining--;
+                            bytesLeft -= fileUploadNode.Size.Bytes;
+                            continue;
+                        }
+                    }
+
+                    if (worker.CancellationPending)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
+                        e.Cancel = true;
+                        updateTimer.Stop();
+                        return;
+                    }
+
+                    try
+                    {
+                        int totalPercent;
+
+                        scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate(object _sender, ScpUploadEventArgs _e)
+                            {
+                                if (okToUpdate)
+                                {
+                                    progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Uploaded * 100) / _e.Size);
+                                    totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Uploaded) * 100) / totalBytes));
+                                    workerThread.ReportProgress(totalPercent, progress);
+
+                                    okToUpdate = false;
+                                }
+                            });
+
+                        bool errorHandled = false;
+                        scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate(object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
+                            {
+                                if (errorHandled)
+                                    return;
+
+                                errorHandled = true;
+                                // Try to clean up
+                                try
+                                {
+                                    ConnectionManager.Instance.DeleteFile(System.IO.Path.Combine(remotePath, fileUploadNode.Filename));
+                                }
+                                catch (Exception)
+                                { }
+                            });
+
+                        scp.Upload(new FileInfo(fileUploadNode.Path), remotePath);
+
+                        progress.FilesRemaining--;
+                        bytesLeft -= fileUploadNode.Size.Bytes;
+                        totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
+                        workerThread.ReportProgress(totalPercent, progress);
+                    }
+                    catch (ScpException se)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, se.Message, false);
+                        updateTimer.Stop();
+                        return;
+                    }
+                    catch (SocketException se)
+                    {
+                        // Was this due to a cancellation?
+                        if (worker.CancellationPending)
+                        {
+                            e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
+                            e.Cancel = true;
+                            updateTimer.Stop();
+                            return;
+                        }
+                        else
+                        {
+                            e.Result = new WorkerCompletedArgs(scp, false, "Error");
+                            updateTimer.Stop();
+                            return;
+                        }
+                    }
+                    catch (SshOperationTimeoutException se)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, se.Message);
+                        updateTimer.Stop();
+                        return;
+                    }
+                    catch (SshConnectionException se)
                     {
                         e.Result = new WorkerCompletedArgs(scp, false, "Error");
+                        updateTimer.Stop();
                         return;
                     }
                 }
-                catch (SshOperationTimeoutException se)
+            }
+            else if (e.Argument is WorkerThreadArgsDownload)
+            {
+                WorkerThreadArgsDownload args = (WorkerThreadArgsDownload)e.Argument;
+                string localPath = args.localPath;
+
+                foreach (FileUploadDownloadNode fileUploadNode in uploadFiles)
                 {
-                    e.Result = new WorkerCompletedArgs(scp, false, se.Message);
-                    return;
-                }
-                catch (SshConnectionException se)
-                {
-                    e.Result = new WorkerCompletedArgs(scp, false, "Error");
-                    return;
+                    if (worker.CancellationPending)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
+                        e.Cancel = true;
+                        updateTimer.Stop();
+                        return;
+                    }
+
+                    if (File.Exists(System.IO.Path.Combine(localPath, fileUploadNode.Filename)))
+                    {
+                        MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result == MessageBoxResult.No)
+                        {
+                            progress.FilesRemaining--;
+                            bytesLeft -= fileUploadNode.Size.Bytes;
+                            continue;
+                        }
+                    }
+
+                    if (worker.CancellationPending)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
+                        e.Cancel = true;
+                        updateTimer.Stop();
+                        return;
+                    }
+
+                    try
+                    {
+                        int totalPercent;
+
+                        scp.Downloading += new EventHandler<ScpDownloadEventArgs>(delegate(object _sender, ScpDownloadEventArgs _e)
+                        {
+                            if (okToUpdate)
+                            {
+                                progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Downloaded * 100) / _e.Size);
+                                totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Downloaded) * 100) / totalBytes));
+                                workerThread.ReportProgress(totalPercent, progress);
+
+                                okToUpdate = false;
+                            }
+                        });
+
+                        bool errorHandled = false;
+                        scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate(object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
+                        {
+                            if (errorHandled)
+                                return;
+
+                            errorHandled = true;
+                            // Try to clean up
+                            try
+                            {
+                                if (File.Exists(System.IO.Path.Combine(localPath, fileUploadNode.Filename)))
+                                    File.Delete(System.IO.Path.Combine(localPath, fileUploadNode.Filename));
+                            }
+                            catch (Exception)
+                            { }
+                        });
+
+                        scp.Download(fileUploadNode.Path, new FileInfo(System.IO.Path.Combine(localPath, fileUploadNode.Filename)));
+
+                        progress.FilesRemaining--;
+                        bytesLeft -= fileUploadNode.Size.Bytes;
+                        totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
+                        workerThread.ReportProgress(totalPercent, progress);
+                    }
+                    catch (ScpException se)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, se.Message, false);
+                        updateTimer.Stop();
+                        return;
+                    }
+                    catch (SocketException se)
+                    {
+                        // Was this due to a cancellation?
+                        if (worker.CancellationPending)
+                        {
+                            e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
+                            e.Cancel = true;
+                            updateTimer.Stop();
+                            return;
+                        }
+                        else
+                        {
+                            e.Result = new WorkerCompletedArgs(scp, false, "Error");
+                            updateTimer.Stop();
+                            return;
+                        }
+                    }
+                    catch (SshOperationTimeoutException se)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, se.Message);
+                        updateTimer.Stop();
+                        return;
+                    }
+                    catch (SshConnectionException se)
+                    {
+                        e.Result = new WorkerCompletedArgs(scp, false, "Error");
+                        updateTimer.Stop();
+                        return;
+                    }
                 }
             }
 
             progress.Status = "Complete";
             workerThread.ReportProgress(100, progress);
             e.Result = new WorkerCompletedArgs(scp, true, "");
+            updateTimer.Stop();
         }
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -337,12 +525,22 @@ namespace GCWZeroManager
         private ScpClient scp;
         private bool result;
         private string errorMsg;
+        private bool connectionError;
 
         public WorkerCompletedArgs(ScpClient scp, bool result, string errorMsg)
         {
             this.scp = scp;
             this.result = result;
             this.errorMsg = errorMsg;
+            this.connectionError = !result;
+        }
+
+        public WorkerCompletedArgs(ScpClient scp, bool result, string errorMsg, bool connectionError)
+        {
+            this.scp = scp;
+            this.result = result;
+            this.errorMsg = errorMsg;
+            this.connectionError = connectionError;
         }
 
         public ScpClient Scp
@@ -361,6 +559,12 @@ namespace GCWZeroManager
         {
             get { return errorMsg; }
             set { errorMsg = value; }
+        }
+
+        public bool ConnectionError
+        {
+            get { return connectionError; }
+            set { connectionError = value; }
         }
     }
 }

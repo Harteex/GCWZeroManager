@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("GCWZeroManager")]
-[assembly: AssemblyCopyright("Copyright © Harteex 2013")]
+[assembly: AssemblyCopyright("Copyright © Harteex 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

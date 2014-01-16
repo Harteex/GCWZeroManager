@@ -416,6 +416,7 @@ namespace GCWZeroManager
                 return null;
 
             ScpClient scp = new ScpClient(connectionInfo);
+            // OperationTimeout didn't seem to work here?
             scp.BufferSize = 8192;
 
             try

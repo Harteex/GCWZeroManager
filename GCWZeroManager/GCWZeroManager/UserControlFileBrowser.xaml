@@ -52,6 +52,13 @@
             <Button Name="buttonNewFolder" ToolTip="New folder" Click="buttonNewFolder_Click">
                 <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-new-folder.png" />
             </Button>
+            <Separator Margin="5,0,5,0"/>
+            <Button Name="buttonDownload" ToolTip="Download" Click="buttonDownload_Click">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-download.png" />
+            </Button>
+            <Button Name="buttonUpload" ToolTip="Upload" Click="buttonUpload_Click">
+                <Image Width="22" Height="22" Source="Resources/Toolbar/toolbar-upload.png" />
+            </Button>
         </ToolBar>
         <Label Content="Path:" Height="28" HorizontalAlignment="Left" Margin="0,33,0,0" Name="labelPath" VerticalAlignment="Top" />
         <TextBox Height="23" HorizontalAlignment="Stretch" Margin="42,35,0,0" Name="textBoxPath" VerticalAlignment="Top" Width="Auto" Text="/" IsReadOnly="True" />

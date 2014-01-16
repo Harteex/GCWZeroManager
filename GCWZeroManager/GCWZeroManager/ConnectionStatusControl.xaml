@@ -6,6 +6,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="16" d:DesignWidth="16" Height="16" Width="16">
     <Grid Height="16" Width="16">
-        <Image Height="16" Margin="0, 0, 0, 0" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="16" />
+        <Image ToolTip="" Height="16" Margin="0, 0, 0, 0" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="16" />
     </Grid>
 </UserControl>

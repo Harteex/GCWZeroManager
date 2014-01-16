@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GCWZeroManager
 {
-    public class FileUploadNode
+    public class FileUploadDownloadNode
     {
         public string Path { get; set; }
         public string Filename { get; set; }

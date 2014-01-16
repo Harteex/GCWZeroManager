@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 
 namespace GCWZeroManager
 {
@@ -109,7 +111,48 @@ namespace GCWZeroManager
 
         private void menuItemDownload_Click(object sender, RoutedEventArgs e)
         {
-            // TODO
+            if (gridSoftwareList.SelectedIndex == -1)
+            {
+                MessageBox.Show("No software was selected - nothing to download", "No software selected", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            List<FileUploadDownloadNode> selectedFiles = new List<FileUploadDownloadNode>();
+
+            foreach (Object o in gridSoftwareList.SelectedItems)
+            {
+                OPKFile opk = (OPKFile)o;
+                FileUploadDownloadNode fileDlNode = new FileUploadDownloadNode();
+                fileDlNode.Filename = opk.Filename;
+                fileDlNode.Size = opk.Size;
+                fileDlNode.Path = System.IO.Path.Combine(ConnectionManager.Instance.OPKDirectory, opk.Filename);
+                selectedFiles.Add(fileDlNode);
+            }
+
+            VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
+
+            Nullable<bool> result = folderBrowser.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                TransferProgressWindow transferWindow = new TransferProgressWindow();
+                transferWindow.DownloadFiles(selectedFiles, folderBrowser.SelectedPath);
+                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+
+                if (resultTransfer.HasValue && resultTransfer.Value)
+                {
+                    gridSoftwareList.SelectedIndex = -1;
+                }
+                else
+                {
+                    MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                if (transferWindow.IsConnectionError)
+                {
+                    ConnectionManager.Instance.Disconnect(true);
+                }
+            }
         }
     }
 }
