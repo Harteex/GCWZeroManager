@@ -56,6 +56,7 @@ namespace GCWZeroManager
         private string username = "root";
         private string passphrase = "";
         private bool passphraseOk = false;
+        private string lastError = "No error";
 
         private TimeSpan connectingTimeout = new TimeSpan(0, 0, 10);
         private TimeSpan operationTimeout = new TimeSpan(0, 0, 8);
@@ -396,7 +397,7 @@ namespace GCWZeroManager
             }
             else
             {
-                connectionInfo = new PasswordConnectionInfo(conn.Host, username, conn.Password);
+                connectionInfo = new PasswordConnectionInfo(conn.Host, username, conn.Password); // FIXME Handle ArgumentException
             }
 
             connectionInfo.Timeout = TimeSpan.FromSeconds(10);
@@ -421,8 +422,9 @@ namespace GCWZeroManager
             {
                 scp.Connect();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                lastError = ex.Message;
                 return null;
             }
 
@@ -448,8 +450,9 @@ namespace GCWZeroManager
             {
                 sftp.Connect();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                lastError = ex.Message;
                 return null;
             }
 
@@ -473,8 +476,9 @@ namespace GCWZeroManager
             {
                 ssh.Connect();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                lastError = ex.Message;
                 return null;
             }
 
@@ -627,7 +631,7 @@ namespace GCWZeroManager
             SshClient ssh = ConnectSSH(cn);
             if (ssh == null || !ssh.IsConnected)
             {
-                result = "Connection failed";
+                result = "Connection failed (" + lastError + ")";
                 return false;
             }
 

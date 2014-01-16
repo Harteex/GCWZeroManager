@@ -9,6 +9,7 @@
 * Instructions on the add connection wizard should say it's safe to turn off password login in the network app
 * New icon, this one kinda sucks
 * Fixa året om man högerklickar och tar info på exe-filen
+* Some notice about known bugs????
 
 
 *** INSTALL SOFTWARE ***
