@@ -70,6 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="ConfigurationManager.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="ConnectionNode.cs" />

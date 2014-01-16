@@ -90,6 +90,7 @@ namespace GCWZeroManager
         private void LoadConfiguration()
         {
             ConfigurationManager.Instance.LoadConnections();
+            ConfigurationManager.Instance.LoadSettings();
             comboBoxConnections.ItemsSource = ConnectionManager.Instance.Connections.Connections;
             comboBoxConnections.SelectedItem = ConnectionManager.Instance.Connections.GetActiveConnection();
         }

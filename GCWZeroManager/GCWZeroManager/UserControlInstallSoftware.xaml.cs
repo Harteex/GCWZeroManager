@@ -134,6 +134,13 @@ namespace GCWZeroManager
 
         private void buttonAddOpk_Click(object sender, RoutedEventArgs e)
         {
+            if (!ConfigurationManager.Instance.Settings.HasShownDragNDropNoticeInstallOpk)
+            {
+                MessageBox.Show("Did you know: You can also add OPKs by simply using drag'n'drop. This notice will not be shown again.", "Did you know", MessageBoxButton.OK, MessageBoxImage.Information);
+                ConfigurationManager.Instance.Settings.HasShownDragNDropNoticeInstallOpk = true;
+                ConfigurationManager.Instance.SaveSettings();
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             openFileDialog.DefaultExt = ".opk";

@@ -1,6 +1,5 @@
 
 *** MAIN WINDOW / GENERAL ***
-* First time you click on Add OPKs or upload file, inform about dragndrop
 * Krashar om man försöker överföra filer som flyttats / tagits bort
 * Move all (most?) connection usage to its own thread, with a queue. If not all, make sure to guard with locks... then handle things asynchronously in the GUI.
 * Automatically load some data for example initial directory in Files if connected?

@@ -389,6 +389,13 @@ namespace GCWZeroManager
 
         private void buttonUpload_Click(object sender, RoutedEventArgs e)
         {
+            if (!ConfigurationManager.Instance.Settings.HasShownDragNDropNoticeFiles)
+            {
+                MessageBox.Show("Did you know: You can also upload files by simply using drag'n'drop. This notice will not be shown again.", "Did you know", MessageBoxButton.OK, MessageBoxImage.Information);
+                ConfigurationManager.Instance.Settings.HasShownDragNDropNoticeFiles = true;
+                ConfigurationManager.Instance.SaveSettings();
+            }
+
             DoUpload();
         }
 
