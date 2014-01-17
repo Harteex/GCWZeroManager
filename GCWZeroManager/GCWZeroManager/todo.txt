@@ -28,6 +28,8 @@
 
 * Set file permissions?
 
+* Translations?
+
 * SSDP
 Find GCW Zero automatically, instead of having to enter an IP / Host
 http://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
