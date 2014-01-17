@@ -344,12 +344,6 @@ namespace GCWZeroManager
             return true;
         }
 
-
-
-
-
-        // OLD STUFF BELOW!!
-
         public ConnectionInfo GetConnectionInfo(ConnectionNode conn)
         {
             ConnectionInfo connectionInfo = null;
@@ -578,53 +572,6 @@ namespace GCWZeroManager
             sftp.Disconnect();
 
             return list;
-        }
-
-        public bool UploadFiles(List<OPKFile> filesToUpload)
-        {
-            SftpClient sftp = ConnectWithActiveConnectionSFTP();
-            if (sftp == null || !sftp.IsConnected)
-                return false;
-
-            List<string> fileList = GetOPKFilenameList(sftp);
-
-            sftp.Disconnect();
-
-            ScpClient scp = ConnectWithActiveConnectionSCP();
-
-            foreach (OPKFile opk in filesToUpload)
-            {
-                if (fileList.Contains(opk.Filename))
-                {
-                    MessageBoxResult result = MessageBox.Show("File " + opk.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (result == MessageBoxResult.No)
-                        continue;
-                }
-
-                Stream fs = File.OpenRead(opk.LocalPath);
-
-                try
-                {
-                    string tempFilename = opkDir + opk.Filename;
-                    //scp.Upload(fs, tempFilename);
-                    scp.Uploading += new EventHandler<ScpUploadEventArgs>(scp_Uploading);
-                    scp.Upload(new FileInfo(opk.LocalPath), opkDir);
-                }
-                catch (SshException se)
-                {
-                    MessageBox.Show("Error: " + se.Message);
-                    return false;
-                }
-            }
-
-            scp.Disconnect();
-
-            return true;
-        }
-
-        void scp_Uploading(object sender, ScpUploadEventArgs e)
-        {
-            //Console.WriteLine("LOL");
         }
 
         public bool InstallPublicKey(ConnectionNode cn, string publicKey, out string result)
