@@ -468,7 +468,7 @@ namespace GCWZeroManager
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if (workerThread.IsBusy)
+            if (workerThread != null && workerThread.IsBusy)
             {
                 workerThread.CancelAsync();
                 if (scp != null && scp.IsConnected)
