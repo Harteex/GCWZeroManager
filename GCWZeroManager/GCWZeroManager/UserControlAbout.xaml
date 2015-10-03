@@ -8,7 +8,10 @@
     <Grid>
         <TextBlock Height="37" HorizontalAlignment="Left" Margin="12,128,0,0" Name="textBlock1" Text="The GCW Zero Manager is developed by Andreas Bjerkeholt (Harteex)." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
         <Label Content="GCW Zero Manager version" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="labelVersion" VerticalAlignment="Top" />
-        <TextBlock Height="72" HorizontalAlignment="Left" Margin="12,171,0,0" Name="textBlock2" Text="If you find any bugs or have any suggestions, feel free to write on the Dingoonity GCW Zero forums." VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+		<TextBlock Height="72" HorizontalAlignment="Left" Margin="12,171,0,0" Name="textBlock2" VerticalAlignment="Top" TextWrapping="WrapWithOverflow">
+			If you find any bugs or have any suggestions, feel free to write on the
+			<Hyperlink NavigateUri="http://boards.dingoonity.org/index.php#c10" RequestNavigate="Hyperlink_RequestNavigate">Dingoonity GCW Zero forums</Hyperlink>.
+		</TextBlock>
         <Button Content="View Licenses" Height="23" HorizontalAlignment="Left" Margin="12,46,0,0" Name="buttonLicense" VerticalAlignment="Top" Width="95" Click="buttonLicense_Click" />
         <Button Content="GCW Zero Website" Height="23" HorizontalAlignment="Left" Margin="113,46,0,0" Name="buttonOpenHomepage" VerticalAlignment="Top" Width="124" Click="buttonOpenHomepage_Click" />
     </Grid>
