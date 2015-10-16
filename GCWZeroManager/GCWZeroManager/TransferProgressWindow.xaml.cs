@@ -60,7 +60,7 @@ namespace GCWZeroManager
             InitializeComponent();
         }
 
-        public void UploadFiles(List<OPKFile> files, string remotePath)
+        public bool TryUploadFiles(List<OPKFile> files, string remotePath)
         {
             List<FileUploadDownloadNode> fileNodes = new List<FileUploadDownloadNode>();
 
@@ -74,15 +74,15 @@ namespace GCWZeroManager
                 fileNodes.Add(fileUploadNode);
             }
 
-            UploadFiles(fileNodes, remotePath);
+            return TryUploadFiles(fileNodes, remotePath);
         }
 
-        public void UploadFiles(List<FileUploadDownloadNode> files, string remotePath)
+        public bool TryUploadFiles(List<FileUploadDownloadNode> files, string remotePath)
         {
             if (files.Count == 0)
             {
                 MessageBox.Show("No files to upload", "No files", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return false;
             }
 
             this.uploadFiles = files;
@@ -102,17 +102,26 @@ namespace GCWZeroManager
                 if (!ConnectionManager.Instance.Connect())
                 {
                     MessageBox.Show("Connection failed!", "Connection failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    return false;
                 }
             }
 
             SftpClient sftp = ConnectionManager.Instance.GetActiveSftpConnection();
 
             List<string> fileList = new List<string>();
-            foreach (SftpFile file in sftp.ListDirectory(remotePath))
+            try
             {
-                if (file.IsRegularFile)
-                    fileList.Add(file.Name);
+                foreach (SftpFile file in sftp.ListDirectory(remotePath))
+                {
+                    if (file.IsRegularFile)
+                        fileList.Add(file.Name);
+                }
+            }
+            catch (SshConnectionException)
+            {
+                ConnectionManager.Instance.Disconnect(false);
+                MessageBox.Show("Connection lost!", "Connection lost", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
 
             WorkerThreadArgsUpload args = new WorkerThreadArgsUpload();
@@ -127,6 +136,8 @@ namespace GCWZeroManager
             workerThread.WorkerReportsProgress = true;
             workerThread.WorkerSupportsCancellation = true;
             workerThread.RunWorkerAsync(args);
+
+            return true;
         }
 
         public void DownloadFiles(List<FileUploadDownloadNode> files, string localPath)
