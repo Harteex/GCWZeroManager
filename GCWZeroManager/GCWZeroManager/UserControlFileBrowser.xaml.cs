@@ -132,8 +132,11 @@ namespace GCWZeroManager
             }
 
             TransferProgressWindow transferWindow = new TransferProgressWindow();
-            transferWindow.UploadFiles(filesToUpload, textBoxPath.Text);
-            Nullable<bool> result = transferWindow.ShowDialog();
+            Nullable<bool> result = false;
+            if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
+            {
+                result = transferWindow.ShowDialog();
+            }
 
             if (!result.HasValue || !result.Value)
             {
@@ -363,8 +366,11 @@ namespace GCWZeroManager
                 }
 
                 TransferProgressWindow transferWindow = new TransferProgressWindow();
-                transferWindow.UploadFiles(filesToUpload, textBoxPath.Text);
-                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+                Nullable<bool> resultTransfer = false;
+                if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
+                {
+                    resultTransfer = transferWindow.ShowDialog();
+                }
 
                 if (!resultTransfer.HasValue || !resultTransfer.Value)
                 {
