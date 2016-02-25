@@ -56,6 +56,11 @@ namespace GCWZeroManager
                 string[] filenames = (string[])e.Data.GetData(DataFormats.FileDrop, true);
                 foreach (string filename in filenames)
                 {
+                    // Check if the file is already in the list
+                    if (opkFiles.Any(opkFile => opkFile.LocalPath == filename))
+                    {
+                        continue;
+                    }
                     if (File.Exists(filename) == false)
                     {
                         continue;
