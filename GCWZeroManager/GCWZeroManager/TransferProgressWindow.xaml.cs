@@ -18,6 +18,7 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Net.Sockets;
 using System.Timers;
+using System.Runtime.InteropServices;
 
 namespace GCWZeroManager
 {
@@ -493,6 +494,32 @@ namespace GCWZeroManager
         {
             // TODO prevent closing until cancelled...
         }
+
+        #region Hide window icon and close button
+        // From http://stackoverflow.com/a/1559522/2038264
+        // By Nir http://stackoverflow.com/users/3509/nir
+        // cc by-sa 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+
+        [DllImport("user32.dll")]
+        static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
+
+        private const int GWL_STYLE = -16;
+
+        private const uint WS_SYSMENU = 0x80000;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            SetWindowLong(hwnd, GWL_STYLE,
+                GetWindowLong(hwnd, GWL_STYLE) & (0xFFFFFFFF ^ WS_SYSMENU));
+
+            base.OnSourceInitialized(e);
+        }
+
+        #endregion
     }
 
     public class ProgressState
