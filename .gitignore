@@ -1,3 +1,6 @@
-*.exe.config
-*.manifest
-obj/
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# Build results
+[Bb]in/
+[Oo]bj/
