@@ -127,9 +127,6 @@ namespace GCWZeroManager
                 p.StartInfo.Arguments = "-b 2048 -t rsa -f \"" + filename + "\" -q -N \"\"";
                 p.Start();
 
-                //string output = p.StandardOutput.ReadToEnd();
-                //output += p.StandardError.ReadToEnd();
-                //output = output.Replace("\n", "\r\n");
                 p.WaitForExit(5000);
             }
             catch (Exception ex)

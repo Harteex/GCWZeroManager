@@ -106,9 +106,6 @@ namespace GCWZeroManager
                 cmd.Execute();
                 connectedUsb = cmd.Result.Trim();
 
-                /*textBoxSystemInfo.Text += "DC Power: " + (connectedDc == "1" ? "Connected" : "Not connected") + "\n";
-                textBoxSystemInfo.Text += "USB Power: " + (connectedUsb == "1" ? "Connected" : "Not connected") + "\n";*/
-
                 textBoxSystemInfo.Text += "Connected Power Source:\n";
                 textBoxSystemInfo.Text += "DC Power: " + connectedDc + "\n";
                 textBoxSystemInfo.Text += "USB Power: " + connectedUsb + "\n";

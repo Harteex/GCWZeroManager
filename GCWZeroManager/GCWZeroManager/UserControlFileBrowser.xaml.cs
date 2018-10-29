@@ -132,7 +132,7 @@ namespace GCWZeroManager
             }
 
             TransferProgressWindow transferWindow = new TransferProgressWindow();
-            Nullable<bool> result = false;
+            bool? result = false;
             if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
             {
                 result = transferWindow.ShowDialog();
@@ -320,13 +320,13 @@ namespace GCWZeroManager
 
             VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
 
-            Nullable<bool> result = folderBrowser.ShowDialog();
+            bool? result = folderBrowser.ShowDialog();
 
             if (result.HasValue && result.Value)
             {
                 TransferProgressWindow transferWindow = new TransferProgressWindow();
                 transferWindow.DownloadFiles(selectedFiles, folderBrowser.SelectedPath);
-                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+                bool? resultTransfer = transferWindow.ShowDialog();
 
                 if (resultTransfer.HasValue && resultTransfer.Value)
                 {
@@ -349,7 +349,7 @@ namespace GCWZeroManager
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
 
-            Nullable<bool> result = openFileDialog.ShowDialog();
+            bool? result = openFileDialog.ShowDialog();
 
             List<FileUploadDownloadNode> filesToUpload = new List<FileUploadDownloadNode>();
             if (result.HasValue && result.Value)
@@ -366,7 +366,7 @@ namespace GCWZeroManager
                 }
 
                 TransferProgressWindow transferWindow = new TransferProgressWindow();
-                Nullable<bool> resultTransfer = false;
+                bool? resultTransfer = false;
                 if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
                 {
                     resultTransfer = transferWindow.ShowDialog();
