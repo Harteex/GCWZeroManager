@@ -233,7 +233,6 @@
     <Resource Include="Resources\Toolbar\toolbar-download.png" />
     <Resource Include="Resources\Toolbar\toolbar-upload.png" />
     <Content Include="ssh-keygen.exe" />
-    <Resource Include="todo.txt" />
     <Resource Include="Resources\Icons\icon-folder.png" />
     <Resource Include="Resources\Icons\icon-audio.png" />
     <Resource Include="Resources\Icons\icon-file.png" />
