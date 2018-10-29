@@ -1,4 +1,10 @@
-# GCWZeroManager
+# GCW Zero Manager
 
-GCW Zero Manager is a Windows application to make it easier to connect to your GCW Zero console.
-It lets you install / uninstall OPKs, upload or download files, and get logs and system info.
+![ScreenShot1](screenshot1.jpg "Screenshot 1") ![ScreenShot1](screenshot2.jpg "Screenshot 2")
+
+GCW Zero Manager is a Windows application to make it easier to manage your GCW Zero console.
+It can do the following:
+* Install and uninstall apps
+* Browse files
+* Download and upload files
+* Get system information including the system log
