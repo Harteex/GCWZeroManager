@@ -16,9 +16,16 @@ namespace GCWZeroManager
     public enum FileType { RegularFile, Directory, SymLink, Other };
     public class FileNode
     {
-        public string Filename { get; set; }
-        public SizeElement Size { get; set; }
-        public FileType FileType { get; set; }
+        public FileNodeName Filename { get; private set; }
+        public SizeElement Size { get; private set; }
+        public FileType FileType { get; private set; }
+
+        public FileNode(string filename, long size, FileType fileType)
+        {
+            Filename = new FileNodeName(filename, fileType);
+            Size = new SizeElement(size);
+            FileType = fileType;
+        }
 
         private string GetIconPath(string filename)
         {
@@ -41,11 +48,11 @@ namespace GCWZeroManager
 
                 if (FileType == GCWZeroManager.FileType.RegularFile)
                 {
-                    if (Filename.EndsWith(".txt") || Filename.EndsWith(".log"))
+                    if (Filename.Name.EndsWith(".txt") || Filename.Name.EndsWith(".log"))
                         return GetIconPath("icon-text.png");
-                    if (Filename.EndsWith(".mp3") || Filename.EndsWith(".ogg") || Filename.EndsWith(".wav"))
+                    if (Filename.Name.EndsWith(".mp3") || Filename.Name.EndsWith(".ogg") || Filename.Name.EndsWith(".wav"))
                         return GetIconPath("icon-audio.png");
-                    if (Filename.EndsWith(".bmp") || Filename.EndsWith(".png") || Filename.EndsWith(".jpg"))
+                    if (Filename.Name.EndsWith(".bmp") || Filename.Name.EndsWith(".png") || Filename.Name.EndsWith(".jpg"))
                         return GetIconPath("icon-image.png");
                 }
 

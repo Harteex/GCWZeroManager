@@ -86,6 +86,7 @@
       <DependentUpon>EditConnectionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FileNode.cs" />
+    <Compile Include="FileNodeName.cs" />
     <Compile Include="FileUploadDownloadNode.cs" />
     <Compile Include="HelperTools.cs" />
     <Compile Include="OPKFile.cs" />

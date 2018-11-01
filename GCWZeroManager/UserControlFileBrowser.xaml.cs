@@ -204,9 +204,9 @@ namespace GCWZeroManager
             {
                 FileNode fileNode = (FileNode)o;
                 if (fileNode.FileType == FileType.RegularFile)
-                    selectedFiles.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename));
+                    selectedFiles.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name));
                 else if (fileNode.FileType == FileType.Directory)
-                    selectedDirectories.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename));
+                    selectedDirectories.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name));
                 else
                 {
                     MessageBox.Show("Cannot delete " + fileNode.Filename + ".", "Cannot delete", MessageBoxButton.OK, MessageBoxImage.Stop);
@@ -308,9 +308,9 @@ namespace GCWZeroManager
                 if (fileNode.FileType == FileType.RegularFile)
                 {
                     FileUploadDownloadNode fileUpload = new FileUploadDownloadNode();
-                    fileUpload.Filename = fileNode.Filename;
+                    fileUpload.Filename = fileNode.Filename.Name;
                     fileUpload.Size = fileNode.Size;
-                    fileUpload.Path = System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename);
+                    fileUpload.Path = System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name);
                     selectedFiles.Add(fileUpload);
                 }
                 else

@@ -197,28 +197,23 @@ namespace GCWZeroManager
                 if (file.Name == "." || file.Name == "..")
                     continue;
 
-                FileNode fileNode = new FileNode();
-                fileNode.Filename = file.Name;
-                fileNode.Size = new SizeElement(-1);
-
+                FileType type = FileType.Other;
+                long size = -1;
                 if (file.IsDirectory)
                 {
-                    fileNode.FileType = FileType.Directory;
+                    type = FileType.Directory;
                 }
                 else if (file.IsSymbolicLink)
                 {
-                    fileNode.FileType = FileType.SymLink;
+                    type = FileType.SymLink;
                 }
                 else if (file.IsRegularFile)
                 {
-                    fileNode.FileType = FileType.RegularFile;
-                    fileNode.Size = new SizeElement(file.Length); // Only set file size for files
-                }
-                else
-                {
-                    fileNode.FileType = FileType.Other;
+                    type = FileType.RegularFile;
+                    size = file.Length; // Only set file size for files
                 }
 
+                FileNode fileNode = new FileNode(file.Name, size, type);
                 list.Add(fileNode);
             }
 
