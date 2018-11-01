@@ -32,7 +32,7 @@ namespace GCWZeroManager
             InitializeComponent();
             textBoxPath.Text = ConnectionManager.Instance.HomeDirectory;
             gridFileList.ItemsSource = new ListCollectionView(files);
-
+            
             gridFileList.ColumnFromDisplayIndex(1).SortDirection = ListSortDirection.Ascending;
             ICollectionView view = CollectionViewSource.GetDefaultView(gridFileList.ItemsSource);
             view.SortDescriptions.Clear();
@@ -423,6 +423,17 @@ namespace GCWZeroManager
         private void menuItemDelete_Click(object sender, RoutedEventArgs e)
         {
             DoDelete();
+        }
+
+        private void gridFileList_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Delete:
+                    DoDelete();
+                    e.Handled = true;
+                    break;
+            }
         }
     }
 }

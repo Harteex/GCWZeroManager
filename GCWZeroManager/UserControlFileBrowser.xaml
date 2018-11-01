@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="LightGray">
+        <DataGrid AllowDrop="True" AutoGenerateColumns="False" Background="White" BorderBrush="#FF8C8E94" HorizontalAlignment="Stretch" Margin="0,64,0,0" Name="gridFileList" VerticalAlignment="Stretch" CanUserAddRows="False" HeadersVisibility="Column" SelectionMode="Extended" SelectionUnit="FullRow" IsReadOnly="True" DragEnter="gridFileList_DragEnter" DragOver="gridFileList_DragOver" Drop="gridFileList_Drop" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="LightGray" PreviewKeyDown="gridFileList_PreviewKeyDown">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Name="menuItemRefresh" Header="Refresh" Click="menuItemRefresh_Click" />
