@@ -88,6 +88,8 @@ namespace GCWZeroManager
             }
 
             ((ListCollectionView)this.gridFileList.ItemsSource).Refresh();
+            if (gridFileList.HasItems)
+                gridFileList.ScrollIntoView(gridFileList.Items[0]);
         }
 
         private void gridFileList_DragEnter(object sender, DragEventArgs e)
