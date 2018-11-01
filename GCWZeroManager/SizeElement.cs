@@ -7,25 +7,19 @@ namespace GCWZeroManager
 {
     public class SizeElement : IComparable
     {
-        private long bytes = 0;
-
-        public long Bytes
-        {
-            get { return bytes; }
-            set { bytes = value; }
-        }
+        public long Bytes { get; private set; }
 
         public SizeElement(long bytes)
         {
-            this.bytes = bytes;
+            this.Bytes = bytes;
         }
 
         public override string ToString()
         {
-            if (bytes == -1)
+            if (Bytes == -1)
                 return "";
 
-            long size = bytes;
+            long size = Bytes;
             if (size < 1024)
                 return "" + size + " B";
 
@@ -43,7 +37,7 @@ namespace GCWZeroManager
                 return false;
 
             SizeElement s = obj as SizeElement;
-            if ((System.Object)s == null)
+            if ((object)s == null)
                 return false;
 
             return (this.Bytes == s.Bytes);
@@ -51,16 +45,16 @@ namespace GCWZeroManager
 
         public override int GetHashCode()
         {
-            return (int)bytes;
+            return (int)Bytes;
         }
 
         public int CompareTo(object other)
         {
             SizeElement o = (SizeElement)other;
-            if (this.Bytes > o.Bytes)
+            if (Bytes > o.Bytes)
                 return 1;
 
-            if (this.Bytes == o.Bytes)
+            if (Bytes == o.Bytes)
                 return 0;
 
             return -1;
