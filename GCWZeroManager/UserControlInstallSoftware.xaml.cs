@@ -119,7 +119,7 @@ namespace GCWZeroManager
 
             TransferProgressWindow transferWindow = new TransferProgressWindow();
             Nullable<bool> result = false;
-            if (transferWindow.TryUploadFiles(opkFiles, ConnectionManager.Instance.OPKDirectory))
+            if (transferWindow.UploadFiles(opkFiles, ConnectionManager.Instance.OPKDirectory))
             {
                 result = transferWindow.ShowDialog();
             }

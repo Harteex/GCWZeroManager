@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
 using Renci.SshNet.Common;
 using System.IO;
@@ -32,7 +31,7 @@ namespace GCWZeroManager
             InitializeComponent();
             textBoxPath.Text = ConnectionManager.Instance.HomeDirectory;
             gridFileList.ItemsSource = new ListCollectionView(files);
-            
+
             gridFileList.ColumnFromDisplayIndex(1).SortDirection = ListSortDirection.Ascending;
             ICollectionView view = CollectionViewSource.GetDefaultView(gridFileList.ItemsSource);
             view.SortDescriptions.Clear();
@@ -98,7 +97,7 @@ namespace GCWZeroManager
                 e.Effects = DragDropEffects.All;
             else
                 e.Effects = DragDropEffects.None;
-            e.Handled = true; 
+            e.Handled = true;
         }
 
         private void gridFileList_DragOver(object sender, DragEventArgs e)
@@ -107,52 +106,14 @@ namespace GCWZeroManager
                 e.Effects = DragDropEffects.All;
             else
                 e.Effects = DragDropEffects.None;
-            e.Handled = true; 
+            e.Handled = true;
         }
 
         private void gridFileList_Drop(object sender, DragEventArgs e)
         {
             string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop, true);
-            List<FileUploadDownloadNode> filesToUpload = new List<FileUploadDownloadNode>();
-            foreach (string path in paths)
-            {
-                FileInfo fi = new FileInfo(path);
-                if (!fi.Exists)
-                {
-                    MessageBox.Show("Error: " + fi.Name + " is a directory or the file doesn't exist.", "Cannot Upload", MessageBoxButton.OK, MessageBoxImage.Stop);
-                    e.Handled = true;
-                    return;
-                }
-                FileUploadDownloadNode fileUploadNode = new FileUploadDownloadNode();
-                fileUploadNode.Path = path;
-                fileUploadNode.Filename = System.IO.Path.GetFileName(path);
-                fileUploadNode.Size = new SizeElement(fi.Length);
 
-                filesToUpload.Add(fileUploadNode);
-
-
-            }
-
-            TransferProgressWindow transferWindow = new TransferProgressWindow();
-            bool? result = false;
-            if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
-            {
-                result = transferWindow.ShowDialog();
-            }
-
-            if (!result.HasValue || !result.Value)
-            {
-                MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            if (transferWindow.IsConnectionError)
-            {
-                ConnectionManager.Instance.Disconnect(true);
-            }
-            else
-            {
-                UpdateList();
-            }
+            DoUpload(paths);
 
             e.Handled = true;
         }
@@ -300,24 +261,14 @@ namespace GCWZeroManager
                 return;
             }
 
-            List<FileUploadDownloadNode> selectedFiles = new List<FileUploadDownloadNode>();
+            var selectedFiles = new List<string>();
 
-            foreach (Object o in gridFileList.SelectedItems)
+            foreach (object o in gridFileList.SelectedItems)
             {
                 FileNode fileNode = (FileNode)o;
-                if (fileNode.FileType == FileType.RegularFile)
-                {
-                    FileUploadDownloadNode fileUpload = new FileUploadDownloadNode();
-                    fileUpload.Filename = fileNode.Filename.Name;
-                    fileUpload.Size = fileNode.Size;
-                    fileUpload.Path = System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name);
-                    selectedFiles.Add(fileUpload);
-                }
-                else
-                {
-                    MessageBox.Show("Cannot download " + fileNode.Filename + ". Only regular files can be downloaded.", "Cannot download", MessageBoxButton.OK, MessageBoxImage.Stop);
-                    return;
-                }
+
+                if (fileNode.FileType == FileType.Directory || fileNode.FileType == FileType.RegularFile)
+                    selectedFiles.Add(fileNode.Filename.Name);
             }
 
             VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
@@ -327,7 +278,7 @@ namespace GCWZeroManager
             if (result.HasValue && result.Value)
             {
                 TransferProgressWindow transferWindow = new TransferProgressWindow();
-                transferWindow.DownloadFiles(selectedFiles, folderBrowser.SelectedPath);
+                transferWindow.DownloadFiles(textBoxPath.Text, selectedFiles, folderBrowser.SelectedPath);
                 bool? resultTransfer = transferWindow.ShowDialog();
 
                 if (resultTransfer.HasValue && resultTransfer.Value)
@@ -346,48 +297,71 @@ namespace GCWZeroManager
             }
         }
 
-        private void DoUpload()
+        private void DoUpload(string[] paths)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Multiselect = true;
+            var filesToUpload = new TransferDirectory("");
 
-            bool? result = openFileDialog.ShowDialog();
-
-            List<FileUploadDownloadNode> filesToUpload = new List<FileUploadDownloadNode>();
-            if (result.HasValue && result.Value)
+            foreach (string path in paths)
             {
-                foreach (string filename in openFileDialog.FileNames)
+                FileInfo fi = new FileInfo(path);
+                if (fi.Exists)
                 {
-                    FileInfo fi = new FileInfo(filename);
-                    FileUploadDownloadNode fileUpload = new FileUploadDownloadNode();
-                    fileUpload.Filename = System.IO.Path.GetFileName(filename);
-                    fileUpload.Path = filename;
-                    fileUpload.Size = new SizeElement(fi.Length);
-
-                    filesToUpload.Add(fileUpload);
+                    filesToUpload.AddFile(new TransferFile(path, fi.Length));
+                    continue;
                 }
 
-                TransferProgressWindow transferWindow = new TransferProgressWindow();
-                bool? resultTransfer = false;
-                if (transferWindow.TryUploadFiles(filesToUpload, textBoxPath.Text))
+                DirectoryInfo di = new DirectoryInfo(path);
+                if (di.Exists)
                 {
-                    resultTransfer = transferWindow.ShowDialog();
-                }
-
-                if (!resultTransfer.HasValue || !resultTransfer.Value)
-                {
-                    MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-
-                if (transferWindow.IsConnectionError)
-                {
-                    ConnectionManager.Instance.Disconnect(true);
-                }
-                else
-                {
-                    UpdateList();
+                    var subDir = GetFilesInPathRecursive(path);
+                    if (subDir != null)
+                        filesToUpload.AddDirectory(subDir);
                 }
             }
+
+            TransferProgressWindow transferWindow = new TransferProgressWindow();
+            bool? result = false;
+            if (transferWindow.UploadFiles(filesToUpload, textBoxPath.Text))
+            {
+                result = transferWindow.ShowDialog();
+            }
+
+            if (!result.HasValue || !result.Value)
+            {
+                MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if (transferWindow.IsConnectionError)
+            {
+                ConnectionManager.Instance.Disconnect(true);
+            }
+            else
+            {
+                UpdateList();
+            }
+        }
+
+        TransferDirectory GetFilesInPathRecursive(string path)
+        {
+            var di = new DirectoryInfo(path);
+            if (!di.Exists)
+                return null;
+
+            var directory = new TransferDirectory(di.Name);
+
+            foreach (var file in di.GetFiles())
+            {
+                directory.AddFile(new TransferFile(file.FullName, file.Length));
+            }
+
+            foreach (var dir in di.GetDirectories())
+            {
+                var subDir = GetFilesInPathRecursive(dir.FullName);
+                if (subDir != null)
+                    directory.AddDirectory(subDir);
+            }
+
+            return directory;
         }
 
         private void buttonDownload_Click(object sender, RoutedEventArgs e)
@@ -404,7 +378,14 @@ namespace GCWZeroManager
                 ConfigurationManager.Instance.SaveSettings();
             }
 
-            DoUpload();
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
+
+            bool? result = openFileDialog.ShowDialog();
+            if (result.HasValue && result.Value)
+            {
+                DoUpload(openFileDialog.FileNames);
+            }
         }
 
         private void menuItemRefresh_Click(object sender, RoutedEventArgs e)

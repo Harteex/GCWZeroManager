@@ -9,7 +9,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Renci.SshNet;
 using System.ComponentModel;
 using Renci.SshNet.Sftp;
@@ -28,19 +27,19 @@ namespace GCWZeroManager
     {
         struct WorkerThreadArgsUpload
         {
-            public List<string> existingFiles;
-            public string remotePath;
+            public string RemotePath;
+            public TransferDirectory TransferDirectory;
         }
 
         struct WorkerThreadArgsDownload
         {
-            public string localPath;
+            public string SourcePath;
+            public List<string> Files;
+            public string LocalPath;
         }
 
         BackgroundWorker workerThread;
-        List<FileUploadDownloadNode> uploadFiles;
-        long totalBytes;
-        ScpClient scp = null;
+        ScpClient scpClient = null;
         bool okToUpdate = false;
 
         string errorMessage = "Unknown error";
@@ -60,42 +59,33 @@ namespace GCWZeroManager
             InitializeComponent();
         }
 
-        public bool TryUploadFiles(List<OPKFile> files, string remotePath)
+        public bool UploadFiles(List<OPKFile> files, string remotePath)
         {
-            List<FileUploadDownloadNode> fileNodes = new List<FileUploadDownloadNode>();
+            TransferDirectory dir = new TransferDirectory("");
 
             foreach (OPKFile opk in files)
             {
-                FileUploadDownloadNode fileUploadNode = new FileUploadDownloadNode();
-                fileUploadNode.Filename = opk.Filename;
-                fileUploadNode.Path = opk.LocalPath;
-                fileUploadNode.Size = opk.Size;
-
-                fileNodes.Add(fileUploadNode);
+                TransferFile file = new TransferFile(opk.LocalPath, opk.Size.Bytes);
+                dir.AddFile(file);
             }
 
-            return TryUploadFiles(fileNodes, remotePath);
+            return UploadFiles(dir, remotePath);
         }
 
-        public bool TryUploadFiles(List<FileUploadDownloadNode> files, string remotePath)
+        public bool UploadFiles(TransferDirectory dir, string remotePath)
         {
-            if (files.Count == 0)
+            int totalFiles = dir.GetTotalFiles();
+            long totalSize = dir.GetTotalSize();
+
+            if (totalFiles == 0)
             {
                 MessageBox.Show("No files to upload", "No files", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            this.uploadFiles = files;
-
-            totalBytes = 0;
-            foreach (FileUploadDownloadNode f in files)
-            {
-                totalBytes += f.Size.Bytes;
-            }
-
-            labelTotalBytesData.Content = HelperTools.GetFormattedSize(totalBytes);
-            labelTotalFilesData.Content = files.Count;
-            labelFilesRemainingData.Content = files.Count;
+            labelTotalBytesData.Content = HelperTools.GetFormattedSize(totalSize);
+            labelTotalFilesData.Content = totalFiles;
+            labelFilesRemainingData.Content = totalFiles;
 
             if (!ConnectionManager.Instance.IsConnected)
             {
@@ -106,27 +96,9 @@ namespace GCWZeroManager
                 }
             }
 
-            SftpClient sftp = ConnectionManager.Instance.GetActiveSftpConnection();
-
-            List<string> fileList = new List<string>();
-            try
-            {
-                foreach (SftpFile file in sftp.ListDirectory(remotePath))
-                {
-                    if (file.IsRegularFile)
-                        fileList.Add(file.Name);
-                }
-            }
-            catch (SshConnectionException)
-            {
-                ConnectionManager.Instance.Disconnect(false);
-                MessageBox.Show("Connection lost!", "Connection lost", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-
             WorkerThreadArgsUpload args = new WorkerThreadArgsUpload();
-            args.existingFiles = fileList;
-            args.remotePath = remotePath;
+            args.RemotePath = remotePath;
+            args.TransferDirectory = dir;
 
             // Start thread (backgroundworker) which does the transfer and updates the progress
             workerThread = new BackgroundWorker();
@@ -140,25 +112,13 @@ namespace GCWZeroManager
             return true;
         }
 
-        public void DownloadFiles(List<FileUploadDownloadNode> files, string localPath)
+        public void DownloadFiles(string sourcePath, List<string> files, string localPath)
         {
             if (files.Count == 0)
             {
                 MessageBox.Show("No files to download", "No files", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            this.uploadFiles = files;
-
-            totalBytes = 0;
-            foreach (FileUploadDownloadNode f in files)
-            {
-                totalBytes += f.Size.Bytes;
-            }
-
-            labelTotalBytesData.Content = HelperTools.GetFormattedSize(totalBytes);
-            labelTotalFilesData.Content = files.Count;
-            labelFilesRemainingData.Content = files.Count;
 
             if (!ConnectionManager.Instance.IsConnected)
             {
@@ -170,7 +130,9 @@ namespace GCWZeroManager
             }
 
             WorkerThreadArgsDownload args = new WorkerThreadArgsDownload();
-            args.localPath = localPath;
+            args.SourcePath = sourcePath;
+            args.Files = files;
+            args.LocalPath = localPath;
 
             // Start thread (backgroundworker) which does the transfer and updates the progress
             workerThread = new BackgroundWorker();
@@ -210,20 +172,368 @@ namespace GCWZeroManager
                 DialogResult = wArgs.Result;
         }
 
+        bool DoUploadFiles(TransferState state, string remotePath, TransferDirectory directory)
+        {
+            // Append folder to path. If name is empty, it's the root directory of this transfer.
+            if (!string.IsNullOrEmpty(remotePath))
+                remotePath = Path.Combine(remotePath, directory.Name).Replace('\\', '/');
+
+            // Create directory if needed
+            if (!state.Sftp.Exists(remotePath))
+            {
+                try
+                {
+                    state.Sftp.CreateDirectory(remotePath);
+                }
+                catch (Exception)
+                {
+                    state.StopWithError("Failed to create directory");
+                    return false;
+                }
+            }
+
+            // Get a list of files in the target directory to determine if a file already exists.
+            // It's faster this way rather than doing it per file.
+            List<string> existingFiles = new List<string>();
+            try
+            {
+                foreach (SftpFile file in state.Sftp.ListDirectory(remotePath))
+                {
+                    if (file.IsRegularFile)
+                        existingFiles.Add(file.Name);
+                }
+            }
+            catch (SshConnectionException)
+            {
+                ConnectionManager.Instance.Disconnect(false);
+                MessageBox.Show("Connection lost!", "Connection lost", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            // Transfer each file in the directory object
+            foreach (var file in directory.Files)
+            {
+                if (state.CancellationPending)
+                {
+                    state.Cancel();
+                    return true;
+                }
+
+                if (existingFiles.Contains(file.Name))
+                {
+                    var overwritePrompt = MessageBox.Show("File " + file.Name + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO replace all
+                    if (overwritePrompt == MessageBoxResult.No)
+                    {
+                        state.Progress.FilesRemaining--;
+                        state.BytesLeft -= file.Size;
+                        continue;
+                    }
+                }
+
+                if (state.CancellationPending)
+                {
+                    state.Cancel();
+                    return true;
+                }
+
+                try
+                {
+                    int totalPercent;
+
+                    state.Scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate (object _sender, ScpUploadEventArgs _e)
+                    {
+                        if (okToUpdate)
+                        {
+                            state.Progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Uploaded * 100) / _e.Size);
+                            totalPercent = 100 - (state.TotalBytes == 0 ? 0 : (int)(((state.BytesLeft - _e.Uploaded) * 100) / state.TotalBytes));
+                            state.Worker.ReportProgress(totalPercent, state.Progress);
+
+                            okToUpdate = false;
+                        }
+                    });
+
+                    bool errorHandled = false;
+                    state.Scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate (object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
+                    {
+                        if (errorHandled)
+                            return;
+
+                        errorHandled = true;
+                        // Try to clean up
+                        try
+                        {
+                            ConnectionManager.Instance.DeleteFile(Path.Combine(remotePath, file.Name).Replace('\\', '/'));
+                        }
+                        catch (Exception)
+                        { }
+                    });
+
+                    state.Scp.Upload(new FileInfo(file.SourcePath), remotePath);
+
+                    state.Progress.FilesRemaining--;
+                    state.BytesLeft -= file.Size;
+                    totalPercent = 100 - (state.TotalBytes == 0 ? 0 : (int)((state.BytesLeft * 100) / state.TotalBytes));
+                    state.Worker.ReportProgress(totalPercent, state.Progress);
+                }
+                catch (ScpException se)
+                {
+                    state.StopWithError(se.Message, false);
+                    return false;
+                }
+                catch (SocketException)
+                {
+                    // Was this due to a cancellation?
+                    if (state.CancellationPending)
+                    {
+                        state.Cancel();
+                        return true;
+                    }
+                    else
+                    {
+                        state.StopWithError("Error");
+                        return false;
+                    }
+                }
+                catch (SshOperationTimeoutException se)
+                {
+                    state.StopWithError(se.Message);
+                    return false;
+                }
+                catch (SshConnectionException)
+                {
+                    state.StopWithError("Error");
+                    return false;
+                }
+            }
+
+            bool result = true;
+
+            // Recurse for each subfolder
+            foreach (var subDir in directory.Directories)
+            {
+                result = result && DoUploadFiles(state, remotePath, subDir);
+
+                if (state.IsCancelled)
+                    return true;
+
+                if (!result)
+                    return false;
+            }
+
+            return result;
+        }
+
+        bool DoDownloadFiles(TransferState state, string localPath, TransferDirectory directory)
+        {
+            // Append folder to path. If name is empty, it's the root directory of this transfer.
+            if (!string.IsNullOrEmpty(localPath))
+                localPath = Path.Combine(localPath, directory.Name);
+
+            // Create directory if needed
+            if (!Directory.Exists(localPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(localPath);
+                }
+                catch (Exception)
+                {
+                    state.StopWithError("Failed to create directory", false);
+                    return false;
+                }
+            }
+
+            // Transfer each file in the directory object
+            foreach (var file in directory.Files)
+            {
+                if (state.CancellationPending)
+                {
+                    state.Cancel();
+                    return true;
+                }
+
+                if (File.Exists(Path.Combine(localPath, file.Name)))
+                {
+                    var overwritePrompt = MessageBox.Show("File " + file.Name + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (overwritePrompt == MessageBoxResult.No)
+                    {
+                        state.Progress.FilesRemaining--;
+                        state.BytesLeft -= file.Size;
+                        continue;
+                    }
+                }
+
+                if (state.CancellationPending)
+                {
+                    state.Cancel();
+                    return true;
+                }
+
+                try
+                {
+                    int totalPercent;
+
+                    state.Scp.Downloading += new EventHandler<ScpDownloadEventArgs>(delegate (object _sender, ScpDownloadEventArgs _e)
+                    {
+                        if (okToUpdate)
+                        {
+                            state.Progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Downloaded * 100) / _e.Size);
+                            totalPercent = 100 - (state.TotalBytes == 0 ? 0 : (int)(((state.BytesLeft - _e.Downloaded) * 100) / state.TotalBytes));
+                            state.Worker.ReportProgress(totalPercent, state.Progress);
+
+                            okToUpdate = false;
+                        }
+                    });
+
+                    bool errorHandled = false;
+                    state.Scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate (object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
+                    {
+                        if (errorHandled)
+                            return;
+
+                        errorHandled = true;
+                        // Try to clean up
+                        try
+                        {
+                            if (File.Exists(Path.Combine(localPath, file.Name)))
+                                File.Delete(Path.Combine(localPath, file.Name));
+                        }
+                        catch (Exception)
+                        { }
+                    });
+
+                    state.Scp.Download(file.SourcePath, new FileInfo(Path.Combine(localPath, file.Name)));
+
+                    state.Progress.FilesRemaining--;
+                    state.BytesLeft -= file.Size;
+                    totalPercent = 100 - (state.TotalBytes == 0 ? 0 : (int)((state.BytesLeft * 100) / state.TotalBytes));
+                    state.Worker.ReportProgress(totalPercent, state.Progress);
+                }
+                catch (ScpException se)
+                {
+                    state.StopWithError(se.Message, false);
+                    return false;
+                }
+                catch (SocketException)
+                {
+                    // Was this due to a cancellation?
+                    if (state.CancellationPending)
+                    {
+                        state.Cancel();
+                        return true;
+                    }
+                    else
+                    {
+                        state.StopWithError("Error");
+                        return false;
+                    }
+                }
+                catch (SshOperationTimeoutException se)
+                {
+                    state.StopWithError(se.Message);
+                    return false;
+                }
+                catch (SshConnectionException)
+                {
+                    state.StopWithError("Error");
+                    return false;
+                }
+            }
+
+            bool result = true;
+
+            // Recurse for each subfolder
+            foreach (var subDir in directory.Directories)
+            {
+                result = result && DoDownloadFiles(state, localPath, subDir);
+
+                if (state.IsCancelled)
+                    return true;
+
+                if (!result)
+                    return false;
+            }
+
+            return result;
+        }
+
+        TransferDirectory CollectFilesForDownload(string sourcePath, List<string> files, SftpClient sftp)
+        {
+            var directory = new TransferDirectory("");
+
+            var filesInChosenDir = sftp.ListDirectory(sourcePath);
+            foreach (var file in filesInChosenDir)
+            {
+                if (file.Name == ".." || file.Name == ".")
+                    continue;
+
+                if (files.Contains(file.Name))
+                {
+                    if (file.IsDirectory)
+                    {
+
+                        var subDir = new TransferDirectory(file.Name);
+                        directory.AddDirectory(subDir);
+                        CollectFilesForDownload(sourcePath, subDir, sftp);
+                    }
+                    else if (file.IsRegularFile)
+                    {
+                        var transferFile = new TransferFile(file.FullName, file.Length);
+                        directory.AddFile(transferFile);
+                    }
+                }
+            }
+
+            return directory;
+        }
+
+        void CollectFilesForDownload(string sourcePath, TransferDirectory directory, SftpClient sftp)
+        {
+            if (!string.IsNullOrEmpty(sourcePath))
+                sourcePath = Path.Combine(sourcePath, directory.Name).Replace('\\', '/');
+
+            var files = sftp.ListDirectory(sourcePath);
+            foreach (var file in files)
+            {
+                if (file.Name == ".." || file.Name == ".")
+                    continue;
+
+                if (file.IsDirectory)
+                {
+                    var subDir = new TransferDirectory(file.Name);
+                    directory.AddDirectory(subDir);
+                    CollectFilesForDownload(sourcePath, subDir, sftp);
+                }
+                else if (file.IsRegularFile)
+                {
+                    var transferFile = new TransferFile(file.FullName, file.Length);
+                    directory.AddFile(transferFile);
+                }
+            }
+        }
+
         private void workerThread_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
+            var worker = sender as BackgroundWorker;
+            var uploadDir = (e.Argument as WorkerThreadArgsUpload?)?.TransferDirectory;
 
             ProgressState progress = new ProgressState();
             progress.CurFileProgressPercent = 0;
-            progress.FilesRemaining = uploadFiles.Count;
-            progress.Status = "Transferring...";
+            if (uploadDir != null)
+            {
+                // This is only set for upload here since we don't know these things for download yet, we have to scan the directories first, which is done further down.
+                // Also, it's done here so the values are updated immediately, and not delayed as they would be if they were updated after connecting.
+                int totalFiles = uploadDir.GetTotalFiles();
+                long totalSize = uploadDir.GetTotalSize();
+                progress.FilesRemaining = totalFiles;
+                progress.TotalFiles = totalFiles;
+                progress.TotalBytes = totalSize;
+            }
 
-            long bytesLeft = totalBytes;
-
+            progress.Status = "Connecting...";
             workerThread.ReportProgress(0, progress);
 
-            scp = ConnectionManager.Instance.ConnectWithActiveConnectionSCP();
+            var scp = ConnectionManager.Instance.ConnectWithActiveConnectionSCP();
 
             if (scp == null || !scp.IsConnected)
             {
@@ -233,6 +543,10 @@ namespace GCWZeroManager
                 return;
             }
 
+            scpClient = scp;
+
+            var sftp = ConnectionManager.Instance.GetActiveSftpConnection();
+
             System.Timers.Timer updateTimer = new System.Timers.Timer();
             updateTimer.Elapsed += OnUpdateTimer;
             updateTimer.Interval = 20;
@@ -240,225 +554,41 @@ namespace GCWZeroManager
 
             if (e.Argument is WorkerThreadArgsUpload)
             {
+                progress.Status = "Transferring...";
+                workerThread.ReportProgress(0, progress);
+
                 WorkerThreadArgsUpload args = (WorkerThreadArgsUpload)e.Argument;
-                List<string> fileList = args.existingFiles;
-                string remotePath = args.remotePath;
+                string remotePath = args.RemotePath;
+                long totalBytes = uploadDir.GetTotalSize();
+                var state = new TransferState() { Worker = worker, WorkerEventArgs = e, Progress = progress, UpdateTimer = updateTimer, Scp = scp, Sftp = sftp, TotalBytes = totalBytes, BytesLeft = totalBytes };
 
-                foreach (FileUploadDownloadNode fileUploadNode in uploadFiles)
-                {
-                    if (worker.CancellationPending)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                        e.Cancel = true;
-                        updateTimer.Stop();
-                        return;
-                    }
-
-                    if (fileList.Contains(fileUploadNode.Filename))
-                    {
-                        MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        if (result == MessageBoxResult.No)
-                        {
-                            progress.FilesRemaining--;
-                            bytesLeft -= fileUploadNode.Size.Bytes;
-                            continue;
-                        }
-                    }
-
-                    if (worker.CancellationPending)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                        e.Cancel = true;
-                        updateTimer.Stop();
-                        return;
-                    }
-
-                    try
-                    {
-                        int totalPercent;
-
-                        scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate(object _sender, ScpUploadEventArgs _e)
-                            {
-                                if (okToUpdate)
-                                {
-                                    progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Uploaded * 100) / _e.Size);
-                                    totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Uploaded) * 100) / totalBytes));
-                                    workerThread.ReportProgress(totalPercent, progress);
-
-                                    okToUpdate = false;
-                                }
-                            });
-
-                        bool errorHandled = false;
-                        scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate(object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
-                            {
-                                if (errorHandled)
-                                    return;
-
-                                errorHandled = true;
-                                // Try to clean up
-                                try
-                                {
-                                    ConnectionManager.Instance.DeleteFile(System.IO.Path.Combine(remotePath, fileUploadNode.Filename));
-                                }
-                                catch (Exception)
-                                { }
-                            });
-
-                        scp.Upload(new FileInfo(fileUploadNode.Path), remotePath);
-
-                        progress.FilesRemaining--;
-                        bytesLeft -= fileUploadNode.Size.Bytes;
-                        totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
-                        workerThread.ReportProgress(totalPercent, progress);
-                    }
-                    catch (ScpException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, se.Message, false);
-                        updateTimer.Stop();
-                        return;
-                    }
-                    catch (SocketException se)
-                    {
-                        // Was this due to a cancellation?
-                        if (worker.CancellationPending)
-                        {
-                            e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                            e.Cancel = true;
-                            updateTimer.Stop();
-                            return;
-                        }
-                        else
-                        {
-                            e.Result = new WorkerCompletedArgs(scp, false, "Error");
-                            updateTimer.Stop();
-                            return;
-                        }
-                    }
-                    catch (SshOperationTimeoutException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, se.Message);
-                        updateTimer.Stop();
-                        return;
-                    }
-                    catch (SshConnectionException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Error");
-                        updateTimer.Stop();
-                        return;
-                    }
-                }
+                var result = DoUploadFiles(state, remotePath, args.TransferDirectory);
+                if (!result)
+                    return;
             }
             else if (e.Argument is WorkerThreadArgsDownload)
             {
+                progress.Status = "Scanning folders...";
+                workerThread.ReportProgress(0, progress);
+
                 WorkerThreadArgsDownload args = (WorkerThreadArgsDownload)e.Argument;
-                string localPath = args.localPath;
+                var transferDirectory = CollectFilesForDownload(args.SourcePath, args.Files, sftp);
 
-                foreach (FileUploadDownloadNode fileUploadNode in uploadFiles)
-                {
-                    if (worker.CancellationPending)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                        e.Cancel = true;
-                        updateTimer.Stop();
-                        return;
-                    }
+                int totalFiles = transferDirectory.GetTotalFiles();
+                long totalSize = transferDirectory.GetTotalSize();
 
-                    if (File.Exists(System.IO.Path.Combine(localPath, fileUploadNode.Filename)))
-                    {
-                        MessageBoxResult result = MessageBox.Show("File " + fileUploadNode.Filename + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        if (result == MessageBoxResult.No)
-                        {
-                            progress.FilesRemaining--;
-                            bytesLeft -= fileUploadNode.Size.Bytes;
-                            continue;
-                        }
-                    }
+                progress.FilesRemaining = totalFiles;
+                progress.TotalFiles = totalFiles;
+                progress.TotalBytes = totalSize;
+                progress.Status = "Transferring...";
+                workerThread.ReportProgress(0, progress);
 
-                    if (worker.CancellationPending)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                        e.Cancel = true;
-                        updateTimer.Stop();
-                        return;
-                    }
+                long totalBytes = transferDirectory.GetTotalSize();
+                var state = new TransferState() { Worker = worker, WorkerEventArgs = e, Progress = progress, UpdateTimer = updateTimer, Scp = scp, Sftp = sftp, TotalBytes = totalBytes, BytesLeft = totalBytes };
 
-                    try
-                    {
-                        int totalPercent;
-
-                        scp.Downloading += new EventHandler<ScpDownloadEventArgs>(delegate(object _sender, ScpDownloadEventArgs _e)
-                        {
-                            if (okToUpdate)
-                            {
-                                progress.CurFileProgressPercent = _e.Size == 0 ? 100 : (int)((_e.Downloaded * 100) / _e.Size);
-                                totalPercent = 100 - (totalBytes == 0 ? 0 : (int)(((bytesLeft - _e.Downloaded) * 100) / totalBytes));
-                                workerThread.ReportProgress(totalPercent, progress);
-
-                                okToUpdate = false;
-                            }
-                        });
-
-                        bool errorHandled = false;
-                        scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate(object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
-                        {
-                            if (errorHandled)
-                                return;
-
-                            errorHandled = true;
-                            // Try to clean up
-                            try
-                            {
-                                if (File.Exists(System.IO.Path.Combine(localPath, fileUploadNode.Filename)))
-                                    File.Delete(System.IO.Path.Combine(localPath, fileUploadNode.Filename));
-                            }
-                            catch (Exception)
-                            { }
-                        });
-
-                        scp.Download(fileUploadNode.Path, new FileInfo(System.IO.Path.Combine(localPath, fileUploadNode.Filename)));
-
-                        progress.FilesRemaining--;
-                        bytesLeft -= fileUploadNode.Size.Bytes;
-                        totalPercent = 100 - (totalBytes == 0 ? 0 : (int)((bytesLeft * 100) / totalBytes));
-                        workerThread.ReportProgress(totalPercent, progress);
-                    }
-                    catch (ScpException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, se.Message, false);
-                        updateTimer.Stop();
-                        return;
-                    }
-                    catch (SocketException se)
-                    {
-                        // Was this due to a cancellation?
-                        if (worker.CancellationPending)
-                        {
-                            e.Result = new WorkerCompletedArgs(scp, false, "Cancelled");
-                            e.Cancel = true;
-                            updateTimer.Stop();
-                            return;
-                        }
-                        else
-                        {
-                            e.Result = new WorkerCompletedArgs(scp, false, "Error");
-                            updateTimer.Stop();
-                            return;
-                        }
-                    }
-                    catch (SshOperationTimeoutException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, se.Message);
-                        updateTimer.Stop();
-                        return;
-                    }
-                    catch (SshConnectionException se)
-                    {
-                        e.Result = new WorkerCompletedArgs(scp, false, "Error");
-                        updateTimer.Stop();
-                        return;
-                    }
-                }
+                var result = DoDownloadFiles(state, args.LocalPath, transferDirectory);
+                if (!result)
+                    return;
             }
 
             progress.Status = "Complete";
@@ -470,11 +600,13 @@ namespace GCWZeroManager
         private void OnProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             ProgressState progress = (ProgressState)e.UserState;
-            
+
             progressBarTotal.Value = e.ProgressPercentage;
             progressBarFile.Value = progress.CurFileProgressPercent;
             labelStatusData.Content = progress.Status;
             labelFilesRemainingData.Content = "" + progress.FilesRemaining;
+            labelTotalBytesData.Content = HelperTools.GetFormattedSize(progress.TotalBytes);
+            labelTotalFilesData.Content = progress.TotalFiles;
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -482,9 +614,9 @@ namespace GCWZeroManager
             if (workerThread != null && workerThread.IsBusy)
             {
                 workerThread.CancelAsync();
-                if (scp != null && scp.IsConnected)
+                if (scpClient != null && scpClient.IsConnected)
                 {
-                    scp.Disconnect();
+                    scpClient.Disconnect();
                 }
             }
         }
@@ -497,37 +629,23 @@ namespace GCWZeroManager
 
     public class ProgressState
     {
-        private int curFileProgressPercent;
-        private string status;
-        private int filesRemaining;
+        public int CurFileProgressPercent { get; set; }
+        public string Status { get; set; }
+        public int FilesRemaining { get; set; }
+        public int TotalFiles { get; set; }
+        public long TotalBytes { get; set; }
 
         public ProgressState()
         {
         }
 
-        public ProgressState(int curFileProgressPercent, string status, int filesRemaining)
+        public ProgressState(int curFileProgressPercent, string status, int filesRemaining, int totalFiles, long totalBytes)
         {
-            this.curFileProgressPercent = curFileProgressPercent;
-            this.status = status;
-            this.filesRemaining = filesRemaining;
-        }
-
-        public int CurFileProgressPercent
-        {
-            get { return curFileProgressPercent; }
-            set { curFileProgressPercent = value; }
-        }
-
-        public string Status
-        {
-            get { return status; }
-            set { status = value; }
-        }
-
-        public int FilesRemaining
-        {
-            get { return filesRemaining; }
-            set { filesRemaining = value; }
+            CurFileProgressPercent = curFileProgressPercent;
+            Status = status;
+            FilesRemaining = filesRemaining;
+            TotalFiles = totalFiles;
+            TotalBytes = totalBytes;
         }
     }
 

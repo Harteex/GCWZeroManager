@@ -76,7 +76,7 @@ namespace GCWZeroManager
             List<OPKFile> selectedFiles = new List<OPKFile>();
             string selectedFilesString = "";
 
-            foreach (Object o in gridSoftwareList.SelectedItems)
+            foreach (object o in gridSoftwareList.SelectedItems)
             {
                 OPKFile opk = (OPKFile)o;
                 selectedFiles.Add(opk);
@@ -117,27 +117,22 @@ namespace GCWZeroManager
                 return;
             }
 
-            List<FileUploadDownloadNode> selectedFiles = new List<FileUploadDownloadNode>();
+            var selectedFiles = new List<string>();
 
-            foreach (Object o in gridSoftwareList.SelectedItems)
+            foreach (object o in gridSoftwareList.SelectedItems)
             {
                 OPKFile opk = (OPKFile)o;
-                FileUploadDownloadNode fileDlNode = new FileUploadDownloadNode();
-                fileDlNode.Filename = opk.Filename;
-                fileDlNode.Size = opk.Size;
-                fileDlNode.Path = System.IO.Path.Combine(ConnectionManager.Instance.OPKDirectory, opk.Filename);
-                selectedFiles.Add(fileDlNode);
+                selectedFiles.Add(opk.Filename);
             }
 
             VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
 
-            Nullable<bool> result = folderBrowser.ShowDialog();
-
+            var result = folderBrowser.ShowDialog();
             if (result.HasValue && result.Value)
             {
                 TransferProgressWindow transferWindow = new TransferProgressWindow();
-                transferWindow.DownloadFiles(selectedFiles, folderBrowser.SelectedPath);
-                Nullable<bool> resultTransfer = transferWindow.ShowDialog();
+                transferWindow.DownloadFiles(ConnectionManager.Instance.OPKDirectory, selectedFiles, folderBrowser.SelectedPath);
+                var resultTransfer = transferWindow.ShowDialog();
 
                 if (resultTransfer.HasValue && resultTransfer.Value)
                 {
