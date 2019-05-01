@@ -42,17 +42,9 @@ namespace GCWZeroManager
         ScpClient scpClient = null;
         bool okToUpdate = false;
 
-        string errorMessage = "Unknown error";
-        public string ErrorMessage
-        {
-            get { return errorMessage; }
-        }
-
-        bool connectionError = false;
-        public bool IsConnectionError
-        {
-            get { return connectionError; }
-        }
+        public string ErrorMessage { get; private set; } = "Unknown error";
+        public bool WasCancelled { get; private set; } = true;
+        public bool IsConnectionError { get; private set; } = false;
 
         public TransferProgressWindow()
         {
@@ -153,20 +145,22 @@ namespace GCWZeroManager
         {
             if (e.Cancelled)
             {
-                connectionError = false;
+                IsConnectionError = false;
 
                 if (this.IsVisible)
                     DialogResult = null;
                 return;
             }
 
+            WasCancelled = false;
+
             WorkerCompletedArgs wArgs = (WorkerCompletedArgs)e.Result;
 
             if (wArgs.Scp != null && wArgs.Scp.IsConnected)
                 wArgs.Scp.Disconnect();
 
-            errorMessage = wArgs.ErrorMsg;
-            connectionError = wArgs.ConnectionError;
+            ErrorMessage = wArgs.ErrorMsg;
+            IsConnectionError = wArgs.ConnectionError;
 
             if (this.IsVisible)
                 DialogResult = wArgs.Result;

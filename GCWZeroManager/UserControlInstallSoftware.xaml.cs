@@ -131,7 +131,8 @@ namespace GCWZeroManager
             }
             else
             {
-                MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!transferWindow.WasCancelled)
+                    MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             if (transferWindow.IsConnectionError)

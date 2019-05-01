@@ -290,7 +290,8 @@ namespace GCWZeroManager
                 }
                 else
                 {
-                    MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!transferWindow.WasCancelled)
+                        MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 if (transferWindow.IsConnectionError)
@@ -329,7 +330,7 @@ namespace GCWZeroManager
                 result = transferWindow.ShowDialog();
             }
 
-            if (!result.HasValue || !result.Value)
+            if (!transferWindow.WasCancelled && (!result.HasValue || !result.Value))
             {
                 MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }

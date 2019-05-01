@@ -140,7 +140,8 @@ namespace GCWZeroManager
                 }
                 else
                 {
-                    MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (!transferWindow.WasCancelled)
+                        MessageBox.Show("Download failed: " + transferWindow.ErrorMessage, "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 if (transferWindow.IsConnectionError)
