@@ -17,6 +17,7 @@
         <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="367,12,0,0" Name="labelTotalBytesData" VerticalAlignment="Top" />
         <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="367,32,0,0" Name="labelTotalFilesData" VerticalAlignment="Top" />
         <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="114,50,0,0" Name="labelFilesRemainingData" VerticalAlignment="Top" />
+        <Label Content="Unknown" Height="28" HorizontalAlignment="Left" Margin="114,87,0,0" Name="labelCurrentFileData" VerticalAlignment="Top" />
         <Rectangle Height="48" HorizontalAlignment="Left" Margin="265,12,0,0" Name="rectangle1" Stroke="Black" VerticalAlignment="Top" Width="162" />
     </Grid>
 </Window>

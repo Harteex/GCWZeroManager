@@ -213,6 +213,8 @@ namespace GCWZeroManager
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
+                state.Progress.CurrentFile = file.Name;
+
                 if (state.CancellationPending)
                 {
                     state.Cancel();
@@ -346,6 +348,8 @@ namespace GCWZeroManager
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
+                state.Progress.CurrentFile = file.Name;
+
                 if (state.CancellationPending)
                 {
                     state.Cancel();
@@ -518,6 +522,7 @@ namespace GCWZeroManager
             var uploadDir = (e.Argument as WorkerThreadArgsUpload?)?.TransferDirectory;
 
             ProgressState progress = new ProgressState();
+            progress.CurrentFile = "";
             progress.CurFileProgressPercent = 0;
             if (uploadDir != null)
             {
@@ -603,6 +608,7 @@ namespace GCWZeroManager
 
             progressBarTotal.Value = e.ProgressPercentage;
             progressBarFile.Value = progress.CurFileProgressPercent;
+            labelCurrentFileData.Content = progress.CurrentFile ?? "";
             labelStatusData.Content = progress.Status;
             labelFilesRemainingData.Content = "" + progress.FilesRemaining;
             labelTotalBytesData.Content = HelperTools.GetFormattedSize(progress.TotalBytes);
@@ -629,6 +635,7 @@ namespace GCWZeroManager
 
     public class ProgressState
     {
+        public string CurrentFile { get; set; }
         public int CurFileProgressPercent { get; set; }
         public string Status { get; set; }
         public int FilesRemaining { get; set; }
