@@ -48,11 +48,13 @@ namespace GCWZeroManager
 
                 if (FileType == GCWZeroManager.FileType.RegularFile)
                 {
-                    if (Filename.Name.EndsWith(".txt") || Filename.Name.EndsWith(".log"))
+                    var name = Filename.Name?.ToLower() ?? "";
+
+                    if (name.EndsWith(".txt") || name.EndsWith(".log"))
                         return GetIconPath("icon-text.png");
-                    if (Filename.Name.EndsWith(".mp3") || Filename.Name.EndsWith(".ogg") || Filename.Name.EndsWith(".wav"))
+                    if (name.EndsWith(".mp3") || name.EndsWith(".ogg") || name.EndsWith(".wav"))
                         return GetIconPath("icon-audio.png");
-                    if (Filename.Name.EndsWith(".bmp") || Filename.Name.EndsWith(".png") || Filename.Name.EndsWith(".jpg"))
+                    if (name.EndsWith(".bmp") || name.EndsWith(".png") || name.EndsWith(".jpg"))
                         return GetIconPath("icon-image.png");
                 }
 
