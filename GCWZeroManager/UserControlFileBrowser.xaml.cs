@@ -113,7 +113,10 @@ namespace GCWZeroManager
         {
             string[] paths = (string[])e.Data.GetData(DataFormats.FileDrop, true);
 
-            DoUpload(paths);
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                DoUpload(paths);
+            }));
 
             e.Handled = true;
         }
