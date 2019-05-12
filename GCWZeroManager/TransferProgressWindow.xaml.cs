@@ -691,11 +691,6 @@ namespace GCWZeroManager
                 }
             }
         }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            // TODO prevent closing until cancelled...
-        }
     }
 
     public class ProgressState
