@@ -148,7 +148,7 @@ namespace GCWZeroManager
                 IsConnectionError = false;
 
                 if (this.IsVisible)
-                    DialogResult = null;
+                    DialogResult = false;
                 return;
             }
 
@@ -164,6 +164,21 @@ namespace GCWZeroManager
 
             if (this.IsVisible)
                 DialogResult = wArgs.Result;
+        }
+
+        ReplacePromptDialog.SelectedReplaceOption ShowReplaceDialog(string filename)
+        {
+            var result = Dispatcher.Invoke(new Func<ReplacePromptDialog.SelectedReplaceOption>(() =>
+            {
+                var overwritePrompt = new ReplacePromptDialog();
+                overwritePrompt.Owner = this;
+                overwritePrompt.SetFilename(filename);
+                overwritePrompt.ShowDialog();
+
+                return overwritePrompt.SelectedOption;
+            }));
+
+            return (ReplacePromptDialog.SelectedReplaceOption)result;
         }
 
         bool DoUploadFiles(TransferState state, string remotePath, TransferDirectory directory)
@@ -204,6 +219,8 @@ namespace GCWZeroManager
                 return false;
             }
 
+            bool? autoReplaceAction = null;
+
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
@@ -217,12 +234,38 @@ namespace GCWZeroManager
 
                 if (existingFiles.Contains(file.Name))
                 {
-                    var overwritePrompt = MessageBox.Show("File " + file.Name + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO replace all
-                    if (overwritePrompt == MessageBoxResult.No)
+                    // Automatically skip if user has selected to skip all
+                    if (autoReplaceAction.HasValue && autoReplaceAction.Value == false)
                     {
                         state.Progress.FilesRemaining--;
                         state.BytesLeft -= file.Size;
                         continue;
+                    }
+
+                    // No apply-to-all-action has been made, ask
+                    if (!autoReplaceAction.HasValue)
+                    {
+                        var replaceOption = ShowReplaceDialog(file.Name);
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.ReplaceAll)
+                            autoReplaceAction = true;
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.SkipAll)
+                            autoReplaceAction = false;
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.Skip ||
+                            replaceOption == ReplacePromptDialog.SelectedReplaceOption.SkipAll)
+                        {
+                            state.Progress.FilesRemaining--;
+                            state.BytesLeft -= file.Size;
+                            continue;
+                        }
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.Cancel)
+                        {
+                            state.Cancel();
+                            return true;
+                        }
                     }
                 }
 
@@ -339,6 +382,8 @@ namespace GCWZeroManager
                 }
             }
 
+            bool? autoReplaceAction = null;
+
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
@@ -352,12 +397,38 @@ namespace GCWZeroManager
 
                 if (File.Exists(Path.Combine(localPath, file.Name)))
                 {
-                    var overwritePrompt = MessageBox.Show("File " + file.Name + " already exists, do you want to overwrite?", "File exists", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (overwritePrompt == MessageBoxResult.No)
+                    // Automatically skip if user has selected to skip all
+                    if (autoReplaceAction.HasValue && autoReplaceAction.Value == false)
                     {
                         state.Progress.FilesRemaining--;
                         state.BytesLeft -= file.Size;
                         continue;
+                    }
+
+                    // No apply-to-all-action has been made, ask
+                    if (!autoReplaceAction.HasValue)
+                    {
+                        var replaceOption = ShowReplaceDialog(file.Name);
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.ReplaceAll)
+                            autoReplaceAction = true;
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.SkipAll)
+                            autoReplaceAction = false;
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.Skip ||
+                            replaceOption == ReplacePromptDialog.SelectedReplaceOption.SkipAll)
+                        {
+                            state.Progress.FilesRemaining--;
+                            state.BytesLeft -= file.Size;
+                            continue;
+                        }
+
+                        if (replaceOption == ReplacePromptDialog.SelectedReplaceOption.Cancel)
+                        {
+                            state.Cancel();
+                            return true;
+                        }
                     }
                 }
 

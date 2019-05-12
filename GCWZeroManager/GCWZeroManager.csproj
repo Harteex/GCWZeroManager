@@ -92,6 +92,9 @@
     <Compile Include="PasswordInputDialog.xaml.cs">
       <DependentUpon>PasswordInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ReplacePromptDialog.xaml.cs">
+      <DependentUpon>ReplacePromptDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SetupKeysWindow.xaml.cs">
       <DependentUpon>SetupKeysWindow.xaml</DependentUpon>
     </Compile>
@@ -153,6 +156,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="PasswordInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ReplacePromptDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -235,6 +242,8 @@
     <Content Include="Ookii.Dialogs.Wpf.dll" />
     <Resource Include="Resources\Toolbar\toolbar-download.png" />
     <Resource Include="Resources\Toolbar\toolbar-upload.png" />
+    <Resource Include="Resources\Dialog\replace.png" />
+    <Resource Include="Resources\Dialog\skip.png" />
     <Content Include="ssh-keygen.exe" />
     <Resource Include="Resources\Icons\icon-folder.png" />
     <Resource Include="Resources\Icons\icon-audio.png" />

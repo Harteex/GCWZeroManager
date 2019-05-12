@@ -1,0 +1,26 @@
+﻿<Window x:Class="GCWZeroManager.ReplacePromptDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCWZeroManager"
+        mc:Ignorable="d"
+        Title="File already exists" Height="230" Width="400">
+    <Grid>
+        <TextBlock HorizontalAlignment="Left" Margin="10,10,10,0" Name="textBlockInfo" Text="The destination file '{0}' already exists. Do you want to replace it?" VerticalAlignment="Top" TextWrapping="WrapWithOverflow" />
+        <Button Height="60" HorizontalAlignment="Left" Margin="30,70,30,0" Name="buttonReplace" VerticalAlignment="Top" Width="140" IsDefault="True" Click="buttonReplace_Click">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/Dialog/replace.png" Height="32" />
+                <TextBlock VerticalAlignment="Center" Margin="10">Replace</TextBlock>
+            </StackPanel>
+        </Button>
+        <Button Height="60" HorizontalAlignment="Right" Margin="0,70,30,0" Name="buttonSkip" VerticalAlignment="Top" Width="140" IsDefault="True" Click="buttonSkip_Click">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/Dialog/skip.png" Height="32" />
+                <TextBlock VerticalAlignment="Center" Margin="10">Skip</TextBlock>
+            </StackPanel>
+        </Button>
+        <Button Content="Cancel" Height="23" HorizontalAlignment="Right" Margin="0,154,30,0" Name="buttonCancel" VerticalAlignment="Top" Width="75" IsDefault="True" Click="buttonCancel_Click" />
+        <CheckBox Content="Apply to All" HorizontalAlignment="Left" Margin="30,159,0,0" VerticalAlignment="Top" Name="checkBoxApplyToAll"/>
+    </Grid>
+</Window>
