@@ -173,6 +173,7 @@ namespace GCWZeroManager
                 var overwritePrompt = new ReplacePromptDialog();
                 overwritePrompt.Owner = this;
                 overwritePrompt.SetFilename(filename);
+                overwritePrompt.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 overwritePrompt.ShowDialog();
 
                 return overwritePrompt.SelectedOption;
