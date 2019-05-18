@@ -23,6 +23,7 @@ namespace GCWZeroManager
     public partial class UserControlManageSoftware : UserControl
     {
         private List<OPKFile> files = new List<OPKFile>();
+        TransferProgressWindow transferWindow;
 
         public UserControlManageSoftware()
         {
@@ -130,7 +131,7 @@ namespace GCWZeroManager
             var result = folderBrowser.ShowDialog();
             if (result.HasValue && result.Value)
             {
-                TransferProgressWindow transferWindow = new TransferProgressWindow();
+                transferWindow = new TransferProgressWindow();
                 transferWindow.DownloadFiles(ConnectionManager.Instance.OPKDirectory, selectedFiles, folderBrowser.SelectedPath);
                 var resultTransfer = transferWindow.ShowDialog();
 

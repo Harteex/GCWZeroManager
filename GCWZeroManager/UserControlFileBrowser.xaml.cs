@@ -25,6 +25,7 @@ namespace GCWZeroManager
     {
         private List<FileNode> files = new List<FileNode>();
         string lastOkPath = "/";
+        TransferProgressWindow transferWindow;
 
         public UserControlFileBrowser()
         {
@@ -280,7 +281,7 @@ namespace GCWZeroManager
 
             if (result.HasValue && result.Value)
             {
-                TransferProgressWindow transferWindow = new TransferProgressWindow();
+                transferWindow = new TransferProgressWindow();
                 transferWindow.DownloadFiles(textBoxPath.Text, selectedFiles, folderBrowser.SelectedPath);
                 bool? resultTransfer = transferWindow.ShowDialog();
 
@@ -323,7 +324,7 @@ namespace GCWZeroManager
                 }
             }
 
-            TransferProgressWindow transferWindow = new TransferProgressWindow();
+            transferWindow = new TransferProgressWindow();
             bool? result = false;
             if (transferWindow.UploadFiles(filesToUpload, textBoxPath.Text))
             {
@@ -333,6 +334,13 @@ namespace GCWZeroManager
             if (!transferWindow.WasCancelled && (!result.HasValue || !result.Value))
             {
                 MessageBox.Show("Upload failed: " + transferWindow.ErrorMessage, "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if ((!result.HasValue || !result.Value))
+            {
+                // Quick sleep to let the cleanup functions delete any half transferred file before continuing
+                // No big deal if it doesn't finish in time though, in the worst case you'll see the file until you refresh or reenter the directory
+                System.Threading.Thread.Sleep(100);
             }
 
             if (transferWindow.IsConnectionError)

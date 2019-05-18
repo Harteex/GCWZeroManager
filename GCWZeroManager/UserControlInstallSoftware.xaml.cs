@@ -23,6 +23,7 @@ namespace GCWZeroManager
     public partial class UserControlInstallSoftware : UserControl
     {
         private List<OPKFile> opkFiles = new List<OPKFile>();
+        TransferProgressWindow transferWindow;
 
         public UserControlInstallSoftware()
         {
@@ -117,8 +118,8 @@ namespace GCWZeroManager
                 return;
             }
 
-            TransferProgressWindow transferWindow = new TransferProgressWindow();
-            Nullable<bool> result = false;
+            transferWindow = new TransferProgressWindow();
+            bool? result = false;
             if (transferWindow.UploadFiles(opkFiles, ConnectionManager.Instance.OPKDirectory))
             {
                 result = transferWindow.ShowDialog();
