@@ -162,22 +162,17 @@ namespace GCWZeroManager
             }
 
             List<string> selectedFiles = new List<string>();
-            List<string> selectedDirectories = new List<string>();
             string selectedString = "";
 
-            foreach (Object o in gridFileList.SelectedItems)
+            foreach (object o in gridFileList.SelectedItems)
             {
                 FileNode fileNode = (FileNode)o;
-                if (fileNode.FileType == FileType.RegularFile)
-                    selectedFiles.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name));
-                else if (fileNode.FileType == FileType.Directory)
-                    selectedDirectories.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name));
-                else
-                {
-                    MessageBox.Show("Cannot delete " + fileNode.Filename + ".", "Cannot delete", MessageBoxButton.OK, MessageBoxImage.Stop);
-                    return;
-                }
 
+                // Ignore these rare files since they could cause problems when doing command line rm
+                if (fileNode.Filename.Name.Contains("\""))
+                    continue;
+
+                selectedFiles.Add(System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name));
                 selectedString += fileNode.Filename + "\n";
             }
 
@@ -186,7 +181,7 @@ namespace GCWZeroManager
             {
                 try
                 {
-                    ConnectionManager.Instance.DeleteFiles(selectedFiles);
+                    ConnectionManager.Instance.DeleteMultiple(selectedFiles);
                 }
                 catch (SshOperationTimeoutException ex)
                 {
@@ -196,20 +191,6 @@ namespace GCWZeroManager
                 catch (Exception ex)
                 {
                     MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-
-                try
-                {
-                    ConnectionManager.Instance.DeleteDirectories(selectedDirectories);
-                }
-                catch (SshOperationTimeoutException ex)
-                {
-                    MessageBox.Show("Delete failed: " + ex.Message, "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                    ConnectionManager.Instance.Disconnect(true);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Delete failed: " + ex.Message + ". Make sure the directory is empty.", "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 if (ConnectionManager.Instance.IsConnected)

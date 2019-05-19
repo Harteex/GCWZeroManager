@@ -349,6 +349,20 @@ namespace GCWZeroManager
             return true;
         }
 
+        public bool DeleteMultiple(List<string> paths)
+        {
+            if (activeSsh == null || !activeSsh.IsConnected)
+                return false;
+
+            if (paths.Count == 0)
+                return true;
+
+            var pathsString = $"\"{string.Join("\" \"", paths)}\"";
+
+            activeSsh.RunCommand($"rm -rf {pathsString}");
+            return true;
+        }
+
         public ConnectionInfo GetConnectionInfo(ConnectionNode conn)
         {
             ConnectionInfo connectionInfo = null;
