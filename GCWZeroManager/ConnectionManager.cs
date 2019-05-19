@@ -111,7 +111,7 @@ namespace GCWZeroManager
             ConnectionNode conn = connections.GetActiveConnection();
             if (conn == null)
             {
-                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error);
                 OnConnectionStateChanged(new ConnectionStateEventArgs(ConnectionState.DisconnectedError));
                 return false;
             }
@@ -233,7 +233,7 @@ namespace GCWZeroManager
                 {
                     OPKFile opk = new OPKFile();
                     opk.Filename = file.Name;
-                    opk.Title = file.Name; // FIXME load this somehow in a thread later somewhere
+                    opk.Title = file.Name;
                     opk.Size = new SizeElement(file.Length);
                     list.Add(opk);
                 }
@@ -521,7 +521,7 @@ namespace GCWZeroManager
             ConnectionNode conn = connections.GetActiveConnection();
             if (conn == null)
             {
-                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
 
@@ -533,7 +533,7 @@ namespace GCWZeroManager
             ConnectionNode conn = connections.GetActiveConnection();
             if (conn == null)
             {
-                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
 
@@ -545,7 +545,7 @@ namespace GCWZeroManager
             ConnectionNode conn = connections.GetActiveConnection();
             if (conn == null)
             {
-                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error); // FIXME this is probably more appropriate elsewhere?
+                MessageBox.Show("No active connection selected!", "No active connection", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
 
@@ -582,7 +582,7 @@ namespace GCWZeroManager
                 {
                     OPKFile opk = new OPKFile();
                     opk.Filename = file.Name;
-                    opk.Title = file.Name; // FIXME load this somehow in a thread later somewhere
+                    opk.Title = file.Name;
                     opk.Size = new SizeElement(file.Length);
                     list.Add(opk);
                 }

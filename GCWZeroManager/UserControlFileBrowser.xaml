@@ -71,13 +71,5 @@
         </ToolBar>
         <Label Content="Path:" Height="28" HorizontalAlignment="Left" Margin="0,33,0,0" Name="labelPath" VerticalAlignment="Top" />
         <TextBox Height="23" HorizontalAlignment="Stretch" Margin="42,35,0,0" Name="textBoxPath" VerticalAlignment="Top" Width="Auto" Text="/" IsReadOnly="True" />
-        <!--<StackPanel Height="28" HorizontalAlignment="Left" Margin="152,20,0,0" Name="stackPanel1" VerticalAlignment="Top" Width="200" Orientation="Horizontal">
-            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                <Image Width="22" Source="toolbar-go-parent-directory.png" />
-            </Button>
-            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Focusable="False">
-                <Image Width="22" Source="toolbar-delete.png" />
-            </Button>
-        </StackPanel>-->
     </Grid>
 </UserControl>
