@@ -280,6 +280,9 @@ namespace GCWZeroManager
                 {
                     int totalPercent;
 
+                    if (!File.Exists(file.SourcePath))
+                        throw new Exception($"File '{file.SourcePath}' does not exist.");
+
                     state.Scp.Uploading += new EventHandler<ScpUploadEventArgs>(delegate (object _sender, ScpUploadEventArgs _e)
                     {
                         if (okToUpdate)
@@ -342,6 +345,11 @@ namespace GCWZeroManager
                 catch (SshConnectionException)
                 {
                     state.StopWithError("Error");
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    state.StopWithError(ex.Message, false);
                     return false;
                 }
             }
