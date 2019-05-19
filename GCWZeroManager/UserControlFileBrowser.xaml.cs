@@ -420,12 +420,74 @@ namespace GCWZeroManager
             DoDelete();
         }
 
+        private void menuItemRename_Click(object sender, RoutedEventArgs e)
+        {
+            DoRename();
+        }
+
+        void DoRename()
+        {
+            if (gridFileList.SelectedIndex == -1)
+            {
+                MessageBox.Show("No file selected", "No file selected", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            if (gridFileList.SelectedItems.Count > 1)
+            {
+                MessageBox.Show("You can only rename one file at a time", "Many files selected", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            FileNode fileNode = gridFileList.SelectedItems[0] as FileNode;
+            if (fileNode == null)
+            {
+                MessageBox.Show("An error occured trying to get the file path", "Error", MessageBoxButton.OK, MessageBoxImage.Stop);
+                return;
+            }
+
+            var oldPath = System.IO.Path.Combine(textBoxPath.Text, fileNode.Filename.Name);
+
+            TextInputDialog input = new TextInputDialog("Rename", "Enter a new name", "Name:", fileNode.Filename.Name);
+
+            var fileNameExtensionPos = fileNode.Filename.Name.LastIndexOf('.');
+            if (fileNameExtensionPos > 0)
+                input.SetTextBoxSelection(0, fileNameExtensionPos);
+
+            input.ShowDialog();
+            if (input.DialogResult.HasValue && input.DialogResult.Value)
+            {
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(input.InputText))
+                    {
+                        var newPath = System.IO.Path.Combine(textBoxPath.Text, input.InputText);
+                        ConnectionManager.Instance.RenameFile(oldPath, newPath);
+                        UpdateList();
+                    }
+                }
+                catch (SshOperationTimeoutException ex)
+                {
+                    MessageBox.Show("Failed to rename item: " + ex.Message, "Could Not Rename Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ConnectionManager.Instance.Disconnect(true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to rename item: " + ex.Message, "Could Not Rename Item", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void gridFileList_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
                 case Key.Delete:
                     DoDelete();
+                    e.Handled = true;
+                    break;
+                case Key.F2:
+                    DoRename();
                     e.Handled = true;
                     break;
             }

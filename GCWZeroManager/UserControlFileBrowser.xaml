@@ -13,6 +13,7 @@
                     <MenuItem Name="menuItemNewFolder" Header="New Folder" Click="menuItemNewFolder_Click" />
                     <MenuItem Name="menuItemDownload" Header="Download" Click="menuItemDownload_Click" />
                     <MenuItem Name="menuItemDelete" Header="Delete" Click="menuItemDelete_Click" />
+                    <MenuItem Name="menuItemRename" Header="Rename" Click="menuItemRename_Click" />
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.CellStyle>

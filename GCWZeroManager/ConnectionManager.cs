@@ -282,6 +282,16 @@ namespace GCWZeroManager
             return true;
         }
 
+        public bool RenameFile(string oldPath, string newPath)
+        {
+            if (activeSftp == null || !activeSftp.IsConnected)
+                return false;
+
+            activeSftp.RenameFile(oldPath, newPath);
+
+            return true;
+        }
+
         public bool DeleteFile(string path)
         {
             if (activeSftp == null || !activeSftp.IsConnected)

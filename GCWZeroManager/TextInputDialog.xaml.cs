@@ -20,19 +20,24 @@ namespace GCWZeroManager
     {
         private string inputText;
 
-        public TextInputDialog(string title, string description, string fieldLabel)
+        public TextInputDialog(string title, string description, string fieldLabel, string originalText = "")
         {
             InitializeComponent();
 
             this.Title = title;
             labelDescription.Content = description;
             labelField.Content = fieldLabel;
+            textBox.Text = originalText;
+        }
+
+        public void SetTextBoxSelection(int start, int length)
+        {
+            textBox.Select(start, length);
         }
 
         public string InputText
         {
             get { return inputText; }
-            set { inputText = value; }
         }
 
         private void buttonOk_Click(object sender, RoutedEventArgs e)
