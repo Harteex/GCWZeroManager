@@ -221,6 +221,18 @@ namespace GCWZeroManager
             }
         }
 
+        void EnterDirectory(FileNode node)
+        {
+            if (node == null)
+                return;
+
+            if (node.FileType == FileType.Directory || node.FileType == FileType.SymLink) // FIXME How to differentiate folder symlinks and file symlinks?
+            {
+                textBoxPath.Text += node.Filename + "/";
+                UpdateList();
+            }
+        }
+
         private void gridFileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGridRow row = (DataGridRow)sender;
@@ -228,14 +240,7 @@ namespace GCWZeroManager
                 return;
 
             FileNode file = (FileNode)row.Item;
-            if (file == null)
-                return;
-
-            if (file.FileType == FileType.Directory || file.FileType == FileType.SymLink) // FIXME How to differentiate folder symlinks and file symlinks?
-            {
-                textBoxPath.Text += file.Filename + "/";
-                UpdateList();
-            }
+            EnterDirectory(file);
         }
 
         private void DoDownload()
@@ -469,6 +474,10 @@ namespace GCWZeroManager
                     break;
                 case Key.F2:
                     DoRename();
+                    e.Handled = true;
+                    break;
+                case Key.Return:
+                    EnterDirectory(gridFileList.SelectedItem as FileNode);
                     e.Handled = true;
                     break;
             }
