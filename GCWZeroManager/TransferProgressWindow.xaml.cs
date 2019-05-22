@@ -311,7 +311,7 @@ namespace GCWZeroManager
                         { }
                     });
 
-                    state.Scp.Upload(new FileInfo(file.SourcePath), remotePath);
+                    state.Scp.Upload(new FileInfo(file.SourcePath), Path.Combine(remotePath, file.Name).Replace('\\', '/'));
 
                     state.Progress.FilesRemaining--;
                     state.BytesLeft -= file.Size;
@@ -514,6 +514,11 @@ namespace GCWZeroManager
                 catch (SshConnectionException)
                 {
                     state.StopWithError("Error");
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    state.StopWithError(ex.Message, false);
                     return false;
                 }
             }
