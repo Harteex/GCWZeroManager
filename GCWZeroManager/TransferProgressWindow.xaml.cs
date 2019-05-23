@@ -182,18 +182,29 @@ namespace GCWZeroManager
             return (ReplacePromptDialog.SelectedReplaceOption)result;
         }
 
-        bool DoUploadFiles(TransferState state, string remotePath, TransferDirectory directory)
+        void TryDeleteFile(string filePath)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(filePath))
+                    ConnectionManager.Instance.DeleteFile(filePath);
+            }
+            catch (Exception)
+            { }
+        }
+
+        bool DoUploadFiles(TransferState state, string remoteDirectoryPath, TransferDirectory directory)
         {
             // Append folder to path. If name is empty, it's the root directory of this transfer.
-            if (!string.IsNullOrEmpty(remotePath))
-                remotePath = Path.Combine(remotePath, directory.Name).Replace('\\', '/');
+            if (!string.IsNullOrEmpty(remoteDirectoryPath))
+                remoteDirectoryPath = Path.Combine(remoteDirectoryPath, directory.Name).Replace('\\', '/');
 
             // Create directory if needed
-            if (!state.Sftp.Exists(remotePath))
+            if (!state.Sftp.Exists(remoteDirectoryPath))
             {
                 try
                 {
-                    state.Sftp.CreateDirectory(remotePath);
+                    state.Sftp.CreateDirectory(remoteDirectoryPath);
                 }
                 catch (Exception)
                 {
@@ -207,7 +218,7 @@ namespace GCWZeroManager
             List<string> existingFiles = new List<string>();
             try
             {
-                foreach (SftpFile file in state.Sftp.ListDirectory(remotePath))
+                foreach (SftpFile file in state.Sftp.ListDirectory(remoteDirectoryPath))
                 {
                     if (file.IsRegularFile)
                         existingFiles.Add(file.Name);
@@ -225,6 +236,7 @@ namespace GCWZeroManager
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
+                var remoteFilePath = Path.Combine(remoteDirectoryPath, file.Name).Replace('\\', '/');
                 state.Progress.CurrentFile = file.Name;
 
                 if (state.CancellationPending)
@@ -295,23 +307,7 @@ namespace GCWZeroManager
                         }
                     });
 
-                    bool errorHandled = false;
-                    state.Scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate (object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
-                    {
-                        if (errorHandled)
-                            return;
-
-                        errorHandled = true;
-                        // Try to clean up
-                        try
-                        {
-                            ConnectionManager.Instance.DeleteFile(Path.Combine(remotePath, file.Name).Replace('\\', '/'));
-                        }
-                        catch (Exception)
-                        { }
-                    });
-
-                    state.Scp.Upload(new FileInfo(file.SourcePath), Path.Combine(remotePath, file.Name).Replace('\\', '/'));
+                    state.Scp.Upload(new FileInfo(file.SourcePath), remoteFilePath);
 
                     state.Progress.FilesRemaining--;
                     state.BytesLeft -= file.Size;
@@ -320,11 +316,15 @@ namespace GCWZeroManager
                 }
                 catch (ScpException se)
                 {
+                    TryDeleteFile(remoteFilePath);
+
                     state.StopWithError(se.Message, false);
                     return false;
                 }
                 catch (SocketException)
                 {
+                    TryDeleteFile(remoteFilePath);
+
                     // Was this due to a cancellation?
                     if (state.CancellationPending)
                     {
@@ -339,16 +339,22 @@ namespace GCWZeroManager
                 }
                 catch (SshOperationTimeoutException se)
                 {
+                    TryDeleteFile(remoteFilePath);
+
                     state.StopWithError(se.Message);
                     return false;
                 }
                 catch (SshConnectionException)
                 {
+                    TryDeleteFile(remoteFilePath);
+
                     state.StopWithError("Error");
                     return false;
                 }
                 catch (Exception ex)
                 {
+                    TryDeleteFile(remoteFilePath);
+
                     state.StopWithError(ex.Message, false);
                     return false;
                 }
@@ -359,7 +365,7 @@ namespace GCWZeroManager
             // Recurse for each subfolder
             foreach (var subDir in directory.Directories)
             {
-                result = result && DoUploadFiles(state, remotePath, subDir);
+                result = result && DoUploadFiles(state, remoteDirectoryPath, subDir);
 
                 if (state.IsCancelled)
                     return true;
@@ -461,23 +467,6 @@ namespace GCWZeroManager
 
                             okToUpdate = false;
                         }
-                    });
-
-                    bool errorHandled = false;
-                    state.Scp.ErrorOccurred += new EventHandler<Renci.SshNet.Common.ExceptionEventArgs>(delegate (object _sender, Renci.SshNet.Common.ExceptionEventArgs _e)
-                    {
-                        if (errorHandled)
-                            return;
-
-                        errorHandled = true;
-                        // Try to clean up
-                        try
-                        {
-                            if (File.Exists(Path.Combine(localPath, file.Name)))
-                                File.Delete(Path.Combine(localPath, file.Name));
-                        }
-                        catch (Exception)
-                        { }
                     });
 
                     state.Scp.Download(file.SourcePath, new FileInfo(Path.Combine(localPath, file.Name)));
