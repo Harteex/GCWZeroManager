@@ -402,6 +402,7 @@ namespace GCWZeroManager
             // Transfer each file in the directory object
             foreach (var file in directory.Files)
             {
+                var localFilePath = Path.Combine(localPath, file.Name);
                 state.Progress.CurrentFile = file.Name;
 
                 if (state.CancellationPending)
@@ -410,7 +411,7 @@ namespace GCWZeroManager
                     return true;
                 }
 
-                if (File.Exists(Path.Combine(localPath, file.Name)))
+                if (File.Exists(localFilePath))
                 {
                     // Automatically skip if user has selected to skip all
                     if (autoReplaceAction.HasValue && autoReplaceAction.Value == false)
@@ -444,6 +445,9 @@ namespace GCWZeroManager
                             state.Cancel();
                             return true;
                         }
+
+                        // Delete destination file on replace, since the ScpClient Download method doesn't truncate it first
+                        File.Delete(localFilePath);
                     }
                 }
 
@@ -469,7 +473,7 @@ namespace GCWZeroManager
                         }
                     });
 
-                    state.Scp.Download(file.SourcePath, new FileInfo(Path.Combine(localPath, file.Name)));
+                    state.Scp.Download(file.SourcePath, new FileInfo(localFilePath));
 
                     state.Progress.FilesRemaining--;
                     state.BytesLeft -= file.Size;
